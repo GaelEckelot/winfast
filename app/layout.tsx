@@ -15,7 +15,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NEXUS — Life OS",
+  title: "UPPER LIFE — Augmented OS",
   description:
     "Dashboard minimaliste et futuriste pour piloter sa vie, augmenté par l'IA.",
 };

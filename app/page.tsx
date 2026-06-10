@@ -5,6 +5,7 @@ import { DOMAINS } from "@/lib/domains";
 import type { DomainId } from "@/lib/types";
 import { useStore } from "@/lib/store";
 import { Icon } from "@/components/Icon";
+import { Logo } from "@/components/Logo";
 import { Dashboard } from "@/components/Dashboard";
 import { Assistant } from "@/components/Assistant";
 
@@ -114,7 +115,7 @@ export default function Home() {
                 />
               ) : (
                 <div className="flex h-64 items-center justify-center text-sm text-muted">
-                  Initialisation de NEXUS…
+                  Initialisation d&apos;UPPER LIFE…
                 </div>
               )}
             </div>
@@ -160,22 +161,15 @@ export default function Home() {
 function Brand({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-2.5">
-      <div className="relative flex h-8 w-8 items-center justify-center">
-        <span className="absolute inset-0 rounded-lg bg-accent/20 blur-md" />
-        <div className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-accent/40 bg-bg-base">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
-            <circle cx="12" cy="12" r="4" />
-          </svg>
-        </div>
-      </div>
-      {!compact && (
+      <Logo size={compact ? 30 : 34} />
+      {!compact ? (
         <div>
-          <div className="text-sm font-bold tracking-[0.2em] text-white">NEXUS</div>
-          <div className="text-[9px] uppercase tracking-[0.22em] text-muted">Life OS</div>
+          <div className="text-sm font-bold tracking-[0.22em] text-white">UPPER LIFE</div>
+          <div className="text-[9px] uppercase tracking-[0.22em] text-muted">Augmented OS</div>
         </div>
+      ) : (
+        <div className="text-sm font-bold tracking-[0.22em] text-white">UPPER LIFE</div>
       )}
-      {compact && <div className="text-sm font-bold tracking-[0.2em] text-white">NEXUS</div>}
     </div>
   );
 }

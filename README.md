@@ -1,4 +1,4 @@
-# NEXUS — Life OS
+# UPPER LIFE — Augmented OS
 
 Dashboard **minimaliste & futuriste** pour piloter sa vie, augmenté par l'IA.
 Sept modules de management, chacun avec ses KPIs, ses projets en cours et un **copilote IA** (Claude) contextualisé.
