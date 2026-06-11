@@ -83,7 +83,7 @@ export function Dashboard({ domain, state, onChange }: Props) {
       </div>
 
       {/* KPIs */}
-      <section className="mt-7">
+      <section className="mt-5">
         <div className="flex items-center justify-between">
           <SectionTitle>Indicateurs clés</SectionTitle>
           <button
@@ -96,7 +96,7 @@ export function Dashboard({ domain, state, onChange }: Props) {
             Nouveau KPI
           </button>
         </div>
-        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-2.5 grid grid-cols-2 gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
           {state.kpis.map((k) => (
             <KpiCard
               key={k.id}

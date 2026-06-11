@@ -40,10 +40,10 @@ export function KpiCard({ kpi, accent, onChange, onDelete }: Props) {
   }
 
   return (
-    <div className="glass glass-hover group/kpi relative rounded-xl p-4 animate-fade-up">
+    <div className="glass glass-hover group/kpi relative rounded-xl p-3 animate-fade-up">
       <button
         onClick={() => setEditing((e) => !e)}
-        className="absolute right-3 top-3 text-muted opacity-0 transition-opacity hover:text-white group-hover/kpi:opacity-100"
+        className="absolute right-2.5 top-2.5 text-muted opacity-0 transition-opacity hover:text-white group-hover/kpi:opacity-100"
         title={editing ? "Fermer l'édition" : "Éditer ce KPI"}
         aria-label="Éditer"
       >
@@ -67,7 +67,7 @@ export function KpiCard({ kpi, accent, onChange, onDelete }: Props) {
             className="w-full bg-transparent text-xs uppercase tracking-wider text-white outline-none focus:text-accent-soft"
           />
         ) : (
-          <span className="text-xs uppercase tracking-wider text-muted">{kpi.label}</span>
+          <span className="text-[10px] uppercase tracking-wider text-muted">{kpi.label}</span>
         )}
       </div>
 
@@ -116,16 +116,16 @@ export function KpiCard({ kpi, accent, onChange, onDelete }: Props) {
         </div>
       ) : (
         <>
-          <div className="mt-2 flex items-end justify-between gap-2">
+          <div className="mt-1 flex items-end justify-between gap-2">
             <span
-              className="font-mono text-2xl font-semibold tracking-tight"
+              className="font-mono text-xl font-semibold tracking-tight"
               style={{ color: accent }}
             >
               {formatValue(kpi.value, kpi.unit)}
             </span>
             <span
-              className="flex items-center gap-1 pb-1 text-[11px] font-mono"
-              style={{ color: positive ? "#a3e635" : negative ? "#fb7185" : "#6b7385" }}
+              className="flex items-center gap-1 pb-0.5 text-[11px] font-mono"
+              style={{ color: positive ? "#22a06b" : negative ? "#d35468" : "#6b7385" }}
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <path d={trendIcon[kpi.trend]} />
@@ -135,8 +135,8 @@ export function KpiCard({ kpi, accent, onChange, onDelete }: Props) {
             </span>
           </div>
 
-          <div className="mt-3">
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+          <div className="mt-2">
+            <div className="h-1 w-full overflow-hidden rounded-full bg-white/5">
               <div
                 className="h-full rounded-full transition-all duration-500"
                 style={{
@@ -145,7 +145,7 @@ export function KpiCard({ kpi, accent, onChange, onDelete }: Props) {
                 }}
               />
             </div>
-            <div className="mt-1.5 flex justify-between text-[10px] font-mono text-muted">
+            <div className="mt-1 flex justify-between text-[10px] font-mono text-muted">
               <span>{pct}% de l&apos;objectif</span>
               <span>cible {formatValue(kpi.target, kpi.unit)}</span>
             </div>

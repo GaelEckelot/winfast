@@ -4,9 +4,9 @@ import { useState } from "react";
 import type { Priority, TodoItem } from "@/lib/types";
 
 const PRIO: Record<Priority, { label: string; dot: string; bg: string; text: string }> = {
-  top1: { label: "Top 1", dot: "#e8536b", bg: "#c21f3a", text: "#ffffff" },
-  top2: { label: "Top 2", dot: "#e0b03f", bg: "#c9921f", text: "#241902" },
-  top3: { label: "Top 3", dot: "#1ea571", bg: "#0f8b58", text: "#ffffff" },
+  top1: { label: "Top 1", dot: "#d8546b", bg: "#741a2c", text: "#f1c6cd" },
+  top2: { label: "Top 2", dot: "#d6a63d", bg: "#735417", text: "#f0debb" },
+  top3: { label: "Top 3", dot: "#2fa676", bg: "#0b5036", text: "#bce8d2" },
 };
 const PRIO_ORDER: Priority[] = ["top1", "top2", "top3"];
 
@@ -55,8 +55,8 @@ export function DailyTodo({ todos, onAdd, onUpdate, onRemove }: Props) {
           <span>Tâche</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-24 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
-            Priorité
+          <span className="w-[68px] text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+            Prio
           </span>
           <span className="w-7" />
         </div>
@@ -96,13 +96,13 @@ export function DailyTodo({ todos, onAdd, onUpdate, onRemove }: Props) {
               />
 
               {/* priority dropdown */}
-              <div className="relative w-24 shrink-0">
+              <div className="relative w-[68px] shrink-0">
                 <button
                   onClick={() => {
                     setMenuOpen(null);
                     setPrioOpen(prioOpen === t.id ? null : t.id);
                   }}
-                  className="flex w-full items-center justify-center gap-1 rounded-md px-2 py-1 text-[11px] font-bold"
+                  className="flex w-full items-center justify-center gap-0.5 rounded-md px-1.5 py-1 text-[11px] font-semibold"
                   style={{ color: p.text, background: p.bg }}
                 >
                   {p.label}
