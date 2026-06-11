@@ -3,10 +3,10 @@
 import { useState } from "react";
 import type { Priority, TodoItem } from "@/lib/types";
 
-const PRIO: Record<Priority, { label: string; color: string; bg: string }> = {
-  top1: { label: "Top 1", color: "#d83a52", bg: "rgba(194,31,58,0.14)" },
-  top2: { label: "Top 2", color: "#d3a23a", bg: "rgba(201,146,31,0.14)" },
-  top3: { label: "Top 3", color: "#3f86d6", bg: "rgba(31,99,201,0.14)" },
+const PRIO: Record<Priority, { label: string; dot: string; bg: string; text: string }> = {
+  top1: { label: "Top 1", dot: "#e8536b", bg: "#c21f3a", text: "#ffffff" },
+  top2: { label: "Top 2", dot: "#e0b03f", bg: "#c9921f", text: "#241902" },
+  top3: { label: "Top 3", dot: "#1ea571", bg: "#0f8b58", text: "#ffffff" },
 };
 const PRIO_ORDER: Priority[] = ["top1", "top2", "top3"];
 
@@ -40,8 +40,16 @@ export function DailyTodo({ todos, onAdd, onUpdate, onRemove }: Props) {
         />
       )}
 
-      {/* header */}
+      {/* title */}
       <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
+        <h2 className="text-[15px] font-semibold tracking-tight text-white">Todo du jour</h2>
+        <span className="font-mono text-[11px] text-muted">
+          {doneCount}/{todos.length}
+        </span>
+      </div>
+
+      {/* column header */}
+      <div className="flex items-center justify-between border-b border-white/5 px-4 py-2">
         <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
           <span className="w-7" />
           <span>Tâche</span>
@@ -65,8 +73,8 @@ export function DailyTodo({ todos, onAdd, onUpdate, onRemove }: Props) {
                 onClick={() => onUpdate(t.id, { done: !t.done })}
                 className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors"
                 style={{
-                  borderColor: t.done ? p.color : "#2a2f40",
-                  background: t.done ? p.color : "transparent",
+                  borderColor: t.done ? p.bg : "#2a2f40",
+                  background: t.done ? p.bg : "transparent",
                 }}
                 aria-label={t.done ? "Marquer non fait" : "Marquer fait"}
               >
@@ -94,8 +102,8 @@ export function DailyTodo({ todos, onAdd, onUpdate, onRemove }: Props) {
                     setMenuOpen(null);
                     setPrioOpen(prioOpen === t.id ? null : t.id);
                   }}
-                  className="flex w-full items-center justify-center gap-1 rounded-md border px-2 py-1 text-[11px] font-semibold"
-                  style={{ color: p.color, borderColor: `${p.color}40`, background: p.bg }}
+                  className="flex w-full items-center justify-center gap-1 rounded-md px-2 py-1 text-[11px] font-bold"
+                  style={{ color: p.text, background: p.bg }}
                 >
                   {p.label}
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
@@ -113,10 +121,10 @@ export function DailyTodo({ todos, onAdd, onUpdate, onRemove }: Props) {
                             onUpdate(t.id, { priority: key });
                             setPrioOpen(null);
                           }}
-                          className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12px] hover:bg-white/5"
-                          style={{ color: o.color }}
+                          className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12px] font-medium hover:bg-white/5"
+                          style={{ color: o.dot }}
                         >
-                          <span className="h-2 w-2 rounded-full" style={{ background: o.color }} />
+                          <span className="h-2.5 w-2.5 rounded-full" style={{ background: o.bg }} />
                           {o.label}
                         </button>
                       );

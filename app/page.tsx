@@ -15,7 +15,7 @@ type View = DomainId | "home";
 export default function Page() {
   const { data, todos, hydrated, update, addTodo, updateTodo, removeTodo, reset } = useStore();
   const [active, setActive] = useState<View>("home");
-  const [assistantOpen, setAssistantOpen] = useState(true);
+  const [assistantOpen, setAssistantOpen] = useState(false);
 
   const isHome = active === "home";
   const domain = isHome ? HOME_DOMAIN : DOMAINS.find((d) => d.id === active)!;
