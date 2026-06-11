@@ -127,6 +127,15 @@ input[type="range"]::-moz-range-thumb {
   text-wrap: balance;
 }
 
+/* Hide scrollbar but keep scrollability (used by the top tab band) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Inline KPI edit fields */
 .kpi-edit {
   width: 100%;

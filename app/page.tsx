@@ -29,14 +29,12 @@ export default function Page() {
     <div className="grid-overlay flex min-h-screen flex-col">
       {/* Top navigation band */}
       <header className="sticky top-0 z-30 border-b border-line/5 bg-surface/85 backdrop-blur-xl">
-        <div className="flex items-center gap-3 px-3 py-2.5 sm:px-4">
+        <div className="flex items-center gap-2 px-3 py-2.5 sm:px-4">
           <button onClick={() => setActive("home")} className="shrink-0" aria-label="Accueil">
             <Brand />
           </button>
 
-          <div className="mx-1 hidden h-7 w-px bg-line/8 sm:block" />
-
-          <nav className="flex flex-1 items-center gap-1 overflow-x-auto">
+          <nav className="no-scrollbar flex flex-1 items-center justify-center gap-0.5 overflow-x-auto">
             {DOMAINS.map((d) => {
               const a = d.id === active;
               const health = domainHealth(data[d.id]);
@@ -44,7 +42,7 @@ export default function Page() {
                 <button
                   key={d.id}
                   onClick={() => setActive(d.id)}
-                  className={`group flex shrink-0 items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm transition-colors ${
+                  className={`group flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm transition-colors ${
                     a ? "bg-line/[0.06] text-ink" : "text-muted hover:bg-line/[0.03] hover:text-ink/90"
                   }`}
                   style={a ? { boxShadow: `inset 0 -2px 0 ${d.accent}` } : undefined}

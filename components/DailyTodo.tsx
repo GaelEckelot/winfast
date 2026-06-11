@@ -29,7 +29,7 @@ export function DailyTodo({ todos, onAdd, onUpdate, onRemove }: Props) {
   const doneCount = todos.filter((t) => t.done).length;
 
   return (
-    <div className="glass relative overflow-hidden rounded-2xl">
+    <div className="glass relative rounded-2xl">
       {/* click-away layer */}
       {(prioOpen || menuOpen) && (
         <button
@@ -111,7 +111,7 @@ export function DailyTodo({ todos, onAdd, onUpdate, onRemove }: Props) {
                   </svg>
                 </button>
                 {prioOpen === t.id && (
-                  <div className="absolute right-0 top-full z-20 mt-1 w-24 overflow-hidden rounded-lg border border-line/10 bg-elevated shadow-xl">
+                  <div className="absolute left-full top-1/2 z-20 ml-2 w-24 -translate-y-1/2 overflow-hidden rounded-lg border border-line/10 bg-elevated shadow-xl">
                     {PRIO_ORDER.map((key) => {
                       const o = PRIO[key];
                       return (
@@ -150,7 +150,7 @@ export function DailyTodo({ todos, onAdd, onUpdate, onRemove }: Props) {
                   </svg>
                 </button>
                 {menuOpen === t.id && (
-                  <div className="absolute right-0 top-full z-20 mt-1 w-36 overflow-hidden rounded-lg border border-line/10 bg-elevated shadow-xl">
+                  <div className="absolute left-full top-1/2 z-20 ml-2 w-36 -translate-y-1/2 overflow-hidden rounded-lg border border-line/10 bg-elevated shadow-xl">
                     <button
                       onClick={() => {
                         onRemove(t.id);

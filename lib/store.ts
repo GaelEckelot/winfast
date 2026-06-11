@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { AppData, DomainId, DomainState, Kpi, Project, TodoItem } from "./types";
+import type { AppData, DomainId, DomainState, Kpi, Measurement, Project, TodoItem } from "./types";
 import { SEED } from "./seed";
 
 const STORAGE_KEY = "nexus-life-os:v1";
@@ -37,20 +37,54 @@ function loadTodos(): TodoItem[] {
   }
 }
 
+/** Fabricate a plausible measurement history ending exactly at the current value. */
+function synthHistory(value: number, delta: number, n = 8): Measurement[] {
+  const start = delta ? value / (1 + delta / 100) : value * 0.94;
+  const spread = Math.abs(value - start) || Math.abs(value) * 0.05 || 1;
+  const today = new Date();
+  const pts: Measurement[] = [];
+  for (let i = 0; i < n; i++) {
+    const f = i / (n - 1);
+    const base = start + (value - start) * f;
+    const noise = (Math.sin(i * 1.7) + Math.cos(i * 0.9)) * spread * 0.12;
+    const v = i === n - 1 ? value : Math.max(0, Math.round((base + noise) * 10) / 10);
+    const d = new Date(today);
+    d.setDate(today.getDate() - (n - 1 - i) * 4);
+    pts.push({ t: d.toISOString().slice(0, 10), v });
+  }
+  return pts;
+}
+
+/** Ensure every KPI carries a history (synthesize one for legacy/seed data). */
+function normalize(data: AppData): AppData {
+  const ids = Object.keys(data) as DomainId[];
+  const out = {} as AppData;
+  for (const id of ids) {
+    const s = data[id];
+    out[id] = {
+      ...s,
+      kpis: s.kpis.map((k) =>
+        k.history && k.history.length >= 2 ? k : { ...k, history: synthHistory(k.value, k.delta) },
+      ),
+    };
+  }
+  return out;
+}
+
 function loadInitial(): AppData {
   if (typeof window === "undefined") return SEED;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return SEED;
+    if (!raw) return normalize(SEED);
     const parsed = JSON.parse(raw) as Record<string, DomainState>;
     // Rebuild strictly from current domains: keep saved data for known modules,
     // seed any new module (e.g. Vision), and drop obsolete ones (e.g. Skills).
     const ids = Object.keys(SEED) as DomainId[];
     const merged = {} as AppData;
     for (const id of ids) merged[id] = parsed[id] ?? SEED[id];
-    return merged;
+    return normalize(merged);
   } catch {
-    return SEED;
+    return normalize(SEED);
   }
 }
 
@@ -131,7 +165,7 @@ export function useStore(): Store {
   }, []);
 
   const reset = useCallback(() => {
-    setData(SEED);
+    setData(normalize(SEED));
     setTodos(DEFAULT_TODOS);
     try {
       window.localStorage.removeItem(STORAGE_KEY);
