@@ -9,17 +9,26 @@ export type DomainId =
 
 export type Trend = "up" | "down" | "flat";
 
+/** A single dated measurement of a KPI. */
+export interface Measurement {
+  /** ISO date (YYYY-MM-DD). */
+  t: string;
+  v: number;
+}
+
 export interface Kpi {
   id: string;
   label: string;
-  /** Current numeric value. */
+  /** Current numeric value (= last measurement). */
   value: number;
   /** Target / goal value. */
   target: number;
   unit: string;
   trend: Trend;
-  /** % change vs previous period, signed. */
+  /** % change vs previous measurement, signed. */
   delta: number;
+  /** Chronological history of measurements (oldest → newest). */
+  history?: Measurement[];
 }
 
 export type ProjectStatus = "active" | "planned" | "paused" | "done";
