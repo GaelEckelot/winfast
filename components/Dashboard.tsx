@@ -42,8 +42,8 @@ export function Dashboard({ domain, state, onChange }: Props) {
 
   return (
     <div className="animate-fade-up">
-      {/* Header: title (left) + KPIs (right) */}
-      <div className="flex flex-wrap items-start gap-x-8 gap-y-5">
+      {/* Header: title (left) + KPIs (right), vertically aligned on one line */}
+      <div className="flex flex-wrap items-center gap-x-8 gap-y-5">
         <div className="flex shrink-0 items-center gap-3.5">
           <div
             className="flex h-12 w-12 items-center justify-center rounded-2xl"
@@ -72,11 +72,11 @@ export function Dashboard({ domain, state, onChange }: Props) {
         </div>
 
         <div className="min-w-[280px] flex-1">
-          <div className="flex items-center justify-between">
+          <div className="relative flex items-center justify-center">
             <SectionTitle>Indicateurs clés</SectionTitle>
             <button
               onClick={addKpi}
-              className="flex items-center gap-1.5 rounded-lg border border-line/10 px-2.5 py-1 text-xs font-medium text-ink/80 transition-colors hover:border-line/25 hover:text-ink"
+              className="absolute right-0 top-1/2 flex -translate-y-1/2 items-center gap-1.5 rounded-lg border border-line/10 px-2.5 py-1 text-xs font-medium text-ink/80 transition-colors hover:border-line/25 hover:text-ink"
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M12 5v14M5 12h14" />

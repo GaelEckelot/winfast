@@ -116,15 +116,15 @@ export function KpiCard({ kpi, accent, onChange, onDelete }: Props) {
         </div>
       ) : (
         <>
-          <div className="mt-1 flex items-end justify-between gap-2">
+          <div className="mt-1 flex items-end justify-between gap-1">
             <span
-              className="font-mono text-xl font-semibold tracking-tight"
+              className="whitespace-nowrap font-mono text-lg font-semibold tracking-tight"
               style={{ color: accent }}
             >
               {formatValue(kpi.value, kpi.unit)}
             </span>
             <span
-              className="flex items-center gap-1 pb-0.5 text-[11px] font-mono"
+              className="flex shrink-0 items-center gap-1 pb-0.5 text-[11px] font-mono"
               style={{ color: positive ? "#22a06b" : negative ? "#d35468" : "#6b7385" }}
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
