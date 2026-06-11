@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: #04060b;
+  color: #dfe3ec;
+  background-image:
+    radial-gradient(55% 45% at 10% -14%, rgba(31, 99, 201, 0.12), transparent 72%),
+    radial-gradient(50% 45% at 96% -6%, rgba(15, 139, 88, 0.09), transparent 74%),
+    radial-gradient(45% 40% at 50% 120%, rgba(194, 31, 58, 0.07), transparent 76%);
+  background-attachment: fixed;
+}
+
+/* Subtle grid overlay */
+.grid-overlay {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 46px 46px;
+}
+
+/* Glass panel — deep */
+.glass {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.028), rgba(255, 255, 255, 0.006));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+}
+
+.glass-hover {
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+.glass-hover:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 22px -14px rgba(34, 211, 238, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Subtle depth accent (deep, not neon) */
+.neon {
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2f40 transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #232838;
+  border-radius: 99px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #313850;
+}
+
+/* Range input (sliders) */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 99px;
+  background: #1c2030;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #1f63c9;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(31, 99, 201, 0.5);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: none;
+  border-radius: 50%;
+  background: #1f63c9;
+  cursor: pointer;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Inline KPI edit fields */
+.kpi-edit {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 9px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: #fff;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+.kpi-edit:focus {
+  border-color: rgba(34, 211, 238, 0.5);
+}
+.kpi-edit::placeholder {
+  color: #6b7385;
+}
