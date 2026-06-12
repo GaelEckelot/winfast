@@ -15,11 +15,20 @@ interface Props {
   onAdd: () => void;
   onUpdate: (id: string, patch: Partial<TodoItem>) => void;
   onRemove: (id: string) => void;
+  onMove: (from: number, to: number) => void;
 }
 
-export function DailyTodo({ todos, onAdd, onUpdate, onRemove }: Props) {
+/** Toggle `draggable` directly on the closest row (synchronously, so the
+ *  browser sees it before `dragstart` fires — a React state update is too late). */
+function setRowDraggable(el: HTMLElement, on: boolean) {
+  const row = el.closest<HTMLElement>("[data-todo-row]");
+  if (row) row.draggable = on;
+}
+
+export function DailyTodo({ todos, onAdd, onUpdate, onRemove, onMove }: Props) {
   const [prioOpen, setPrioOpen] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
 
   const closeAll = () => {
     setPrioOpen(null);
@@ -64,10 +73,48 @@ export function DailyTodo({ todos, onAdd, onUpdate, onRemove }: Props) {
 
       {/* rows */}
       <div className="divide-y divide-line/[0.04]">
-        {todos.map((t) => {
+        {todos.map((t, i) => {
           const p = PRIO[t.priority];
           return (
-            <div key={t.id} className="group flex items-center gap-2 px-4 py-2.5">
+            <div
+              key={t.id}
+              data-todo-row
+              onDragStart={() => setDragIndex(i)}
+              onDragOver={(e) => {
+                e.preventDefault();
+                if (dragIndex !== null && dragIndex !== i) {
+                  onMove(dragIndex, i);
+                  setDragIndex(i);
+                }
+              }}
+              onDragEnd={(e) => {
+                e.currentTarget.draggable = false;
+                setDragIndex(null);
+              }}
+              className={`group relative flex items-center gap-2 px-4 py-2.5 transition-opacity ${
+                dragIndex === i ? "opacity-40" : ""
+              }`}
+            >
+              {/* drag handle — appears on row hover, sits in the left padding */}
+              <span
+                onMouseDown={(e) => setRowDraggable(e.currentTarget, true)}
+                onMouseUp={(e) => setRowDraggable(e.currentTarget, false)}
+                onTouchStart={(e) => setRowDraggable(e.currentTarget, true)}
+                onTouchEnd={(e) => setRowDraggable(e.currentTarget, false)}
+                title="Glisser pour réordonner"
+                aria-label="Glisser pour réordonner"
+                className="absolute left-0.5 top-1/2 flex h-5 w-4 -translate-y-1/2 cursor-grab items-center justify-center text-muted opacity-0 transition-opacity hover:text-ink group-hover:opacity-60 active:cursor-grabbing"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <circle cx="9" cy="6" r="1.5" />
+                  <circle cx="15" cy="6" r="1.5" />
+                  <circle cx="9" cy="12" r="1.5" />
+                  <circle cx="15" cy="12" r="1.5" />
+                  <circle cx="9" cy="18" r="1.5" />
+                  <circle cx="15" cy="18" r="1.5" />
+                </svg>
+              </span>
+
               {/* checkbox */}
               <button
                 onClick={() => onUpdate(t.id, { done: !t.done })}
