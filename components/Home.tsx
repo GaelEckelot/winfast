@@ -33,12 +33,7 @@ export function Home({ todos, name, onAdd, onUpdate, onRemove }: Props) {
           </p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight text-ink">
             {greeting}
-            {name ? (
-              <>
-                , <span style={{ color: "#1f63c9" }}>{name}</span>
-              </>
-            ) : null}
-            .
+            {name ? <>, {name}</> : null}.
           </h1>
           <p className="mt-1.5 text-sm text-muted">
             Actions du jour — {todos.filter((t) => !t.done).length} à faire
