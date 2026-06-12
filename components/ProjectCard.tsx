@@ -109,7 +109,7 @@ export function ProjectCard({ project, accent, onChange, onDelete, reorderable, 
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           {overline ? (
-            // Vision: numbered overline (line 1) → status → title.
+            // Vision: numbered overline (line 1) → title → status.
             <>
               <div className="flex items-center gap-2">
                 {gripHandle}
@@ -120,13 +120,13 @@ export function ProjectCard({ project, accent, onChange, onDelete, reorderable, 
                   {overline}
                 </span>
               </div>
-              <div className="mt-1.5">{statusButton}</div>
               <input
                 value={project.name}
                 onChange={(e) => onChange({ ...project, name: e.target.value })}
                 placeholder="Titre de l'objectif…"
                 className="mt-1.5 w-full truncate bg-transparent text-[15px] font-semibold text-ink outline-none placeholder:text-muted/50 focus:text-accent-soft"
               />
+              <div className="mt-1.5">{statusButton}</div>
             </>
           ) : (
             // Other modules: project title (line 1) → status below.
