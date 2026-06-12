@@ -19,6 +19,8 @@ interface Props {
   onDelete: () => void;
   /** Shows a drag handle that arms native drag on the parent wrapper. */
   reorderable?: boolean;
+  /** Small label above the title (e.g. "Objectif 1" in the Vision module). */
+  overline?: string;
 }
 
 /** Toggle `draggable` directly on the closest wrapper (synchronously, so the
@@ -29,7 +31,7 @@ function setWrapperDraggable(el: HTMLElement, on: boolean) {
   if (wrap) wrap.draggable = on;
 }
 
-export function ProjectCard({ project, accent, onChange, onDelete, reorderable }: Props) {
+export function ProjectCard({ project, accent, onChange, onDelete, reorderable, overline }: Props) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const st = STATUS[project.status];
@@ -69,45 +71,67 @@ export function ProjectCard({ project, accent, onChange, onDelete, reorderable }
     commitTasks(project.tasks.filter((t) => t.id !== id));
   }
 
+  const gripHandle = reorderable && (
+    <span
+      onMouseDown={(e) => setWrapperDraggable(e.currentTarget, true)}
+      onMouseUp={(e) => setWrapperDraggable(e.currentTarget, false)}
+      onTouchStart={(e) => setWrapperDraggable(e.currentTarget, true)}
+      onTouchEnd={(e) => setWrapperDraggable(e.currentTarget, false)}
+      title="Glisser pour réordonner"
+      aria-label="Glisser pour réordonner"
+      className="-ml-1 flex h-5 w-4 shrink-0 cursor-grab items-center justify-center text-muted opacity-40 transition-opacity hover:opacity-80 active:cursor-grabbing"
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <circle cx="9" cy="6" r="1.5" />
+        <circle cx="15" cy="6" r="1.5" />
+        <circle cx="9" cy="12" r="1.5" />
+        <circle cx="15" cy="12" r="1.5" />
+        <circle cx="9" cy="18" r="1.5" />
+        <circle cx="15" cy="18" r="1.5" />
+      </svg>
+    </span>
+  );
+
+  const statusButton = (
+    <button
+      onClick={cycleStatus}
+      title="Changer le statut"
+      className="flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide transition-colors"
+      style={{ borderColor: `${st.color}55`, color: st.color }}
+    >
+      <span className="h-1.5 w-1.5 rounded-full" style={{ background: st.color }} />
+      {st.label}
+    </button>
+  );
+
   return (
     <div className="glass glass-hover rounded-xl p-4 animate-fade-up">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            {reorderable && (
-              <span
-                onMouseDown={(e) => setWrapperDraggable(e.currentTarget, true)}
-                onMouseUp={(e) => setWrapperDraggable(e.currentTarget, false)}
-                onTouchStart={(e) => setWrapperDraggable(e.currentTarget, true)}
-                onTouchEnd={(e) => setWrapperDraggable(e.currentTarget, false)}
-                title="Glisser pour réordonner"
-                aria-label="Glisser pour réordonner"
-                className="-ml-1 flex h-5 w-4 shrink-0 cursor-grab items-center justify-center text-muted opacity-40 transition-opacity hover:opacity-80 active:cursor-grabbing"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <circle cx="9" cy="6" r="1.5" />
-                  <circle cx="15" cy="6" r="1.5" />
-                  <circle cx="9" cy="12" r="1.5" />
-                  <circle cx="15" cy="12" r="1.5" />
-                  <circle cx="9" cy="18" r="1.5" />
-                  <circle cx="15" cy="18" r="1.5" />
-                </svg>
-              </span>
-            )}
-            <button
-              onClick={cycleStatus}
-              title="Changer le statut"
-              className="flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide transition-colors"
-              style={{ borderColor: `${st.color}55`, color: st.color }}
-            >
-              <span className="h-1.5 w-1.5 rounded-full" style={{ background: st.color }} />
-              {st.label}
-            </button>
-          </div>
+          {overline ? (
+            <>
+              <div className="flex items-center gap-2">
+                {gripHandle}
+                <span
+                  className="text-[13px] font-semibold uppercase tracking-[0.14em]"
+                  style={{ color: accent }}
+                >
+                  {overline}
+                </span>
+              </div>
+              <div className="mt-1.5">{statusButton}</div>
+            </>
+          ) : (
+            <div className="flex items-center gap-2">
+              {gripHandle}
+              {statusButton}
+            </div>
+          )}
           <input
             value={project.name}
             onChange={(e) => onChange({ ...project, name: e.target.value })}
-            className="mt-2 w-full truncate bg-transparent text-[15px] font-semibold text-ink outline-none focus:text-accent-soft"
+            placeholder={overline ? "Titre de l'objectif…" : undefined}
+            className="mt-1.5 w-full truncate bg-transparent text-[15px] font-semibold text-ink outline-none placeholder:text-muted/50 focus:text-accent-soft"
           />
           {project.description && (
             <p className="mt-0.5 line-clamp-2 text-xs text-muted">{project.description}</p>

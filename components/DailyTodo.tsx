@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Priority, TodoItem } from "@/lib/types";
 
 const PRIO: Record<Priority, { label: string; dot: string; bg: string; text: string }> = {
@@ -29,6 +29,17 @@ export function DailyTodo({ todos, onAdd, onUpdate, onRemove, onMove }: Props) {
   const [prioOpen, setPrioOpen] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+
+  // Auto-focus the freshly added task's input so the user can type right away.
+  const inputRefs = useRef(new Map<string, HTMLInputElement>());
+  const prevLen = useRef(todos.length);
+  useEffect(() => {
+    if (todos.length > prevLen.current) {
+      const last = todos[todos.length - 1];
+      inputRefs.current.get(last.id)?.focus();
+    }
+    prevLen.current = todos.length;
+  }, [todos]);
 
   const closeAll = () => {
     setPrioOpen(null);
@@ -134,6 +145,10 @@ export function DailyTodo({ todos, onAdd, onUpdate, onRemove, onMove }: Props) {
 
               {/* task label */}
               <input
+                ref={(el) => {
+                  if (el) inputRefs.current.set(t.id, el);
+                  else inputRefs.current.delete(t.id);
+                }}
                 value={t.label}
                 placeholder="Nouvelle action…"
                 onChange={(e) => onUpdate(t.id, { label: e.target.value })}
