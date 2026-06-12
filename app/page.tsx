@@ -14,7 +14,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 type View = DomainId | "home";
 
 export default function Page() {
-  const { data, todos, name, hydrated, update, addTodo, updateTodo, removeTodo, setName, reset } =
+  const { data, todos, name, hydrated, update, addTodo, updateTodo, removeTodo, moveTodo, setName, reset } =
     useStore();
   const [active, setActive] = useState<View>("home");
   const [assistantOpen, setAssistantOpen] = useState(false);
@@ -103,6 +103,7 @@ export default function Page() {
                 onAdd={addTodo}
                 onUpdate={updateTodo}
                 onRemove={removeTodo}
+                onMove={moveTodo}
               />
             ) : (
               <Dashboard

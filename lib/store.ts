@@ -104,6 +104,7 @@ export interface Store {
   addTodo: () => void;
   updateTodo: (id: string, patch: Partial<TodoItem>) => void;
   removeTodo: (id: string) => void;
+  moveTodo: (from: number, to: number) => void;
   setName: (name: string) => void;
   reset: () => void;
 }
@@ -161,6 +162,15 @@ export function useStore(): Store {
     setTodos((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  const moveTodo = useCallback((from: number, to: number) => {
+    setTodos((prev) => {
+      const next = [...prev];
+      const [item] = next.splice(from, 1);
+      next.splice(to, 0, item);
+      return next;
+    });
+  }, []);
+
   const setName = useCallback((value: string) => {
     const v = value.trim();
     setNameState(v);
@@ -182,7 +192,7 @@ export function useStore(): Store {
     }
   }, []);
 
-  return { data, todos, name, hydrated, update, addTodo, updateTodo, removeTodo, setName, reset };
+  return { data, todos, name, hydrated, update, addTodo, updateTodo, removeTodo, moveTodo, setName, reset };
 }
 
 /** Convenience: derive aggregate progress for a domain (avg of active projects). */

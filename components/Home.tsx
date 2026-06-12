@@ -9,9 +9,10 @@ interface Props {
   onAdd: () => void;
   onUpdate: (id: string, patch: Partial<TodoItem>) => void;
   onRemove: (id: string) => void;
+  onMove: (from: number, to: number) => void;
 }
 
-export function Home({ todos, name, onAdd, onUpdate, onRemove }: Props) {
+export function Home({ todos, name, onAdd, onUpdate, onRemove, onMove }: Props) {
   const now = new Date();
   const dateStr = now.toLocaleDateString("fr-FR", {
     weekday: "long",
@@ -47,7 +48,7 @@ export function Home({ todos, name, onAdd, onUpdate, onRemove }: Props) {
         </div>
 
         <div className="mt-7">
-          <DailyTodo todos={todos} onAdd={onAdd} onUpdate={onUpdate} onRemove={onRemove} />
+          <DailyTodo todos={todos} onAdd={onAdd} onUpdate={onUpdate} onRemove={onRemove} onMove={onMove} />
         </div>
       </div>
     </div>
