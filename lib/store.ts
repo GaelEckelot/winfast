@@ -61,13 +61,18 @@ function normalize(data: AppData): AppData {
   const out = {} as AppData;
   for (const id of ids) {
     const s = data[id];
+    const seedKpis = SEED[id]?.kpis ?? [];
     out[id] = {
       ...s,
       ledger: s.ledger ?? SEED[id].ledger,
       knowledge: s.knowledge ?? SEED[id].knowledge,
-      kpis: s.kpis.map((k) =>
-        k.history && k.history.length >= 2 ? k : { ...k, history: synthHistory(k.value, k.delta) },
-      ),
+      kpis: s.kpis.map((k) => {
+        const withHist =
+          k.history && k.history.length >= 2 ? k : { ...k, history: synthHistory(k.value, k.delta) };
+        // Re-apply auto-computed flags from seed (by id) to previously saved KPIs.
+        const seedK = seedKpis.find((sk) => sk.id === k.id);
+        return seedK?.derived ? { ...withHist, derived: seedK.derived } : withHist;
+      }),
     };
   }
   return out;
