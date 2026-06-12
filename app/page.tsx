@@ -87,7 +87,7 @@ export default function Page() {
       {/* Body */}
       <div className="flex min-h-0 flex-1">
         <main className="min-w-0 flex-1 overflow-y-auto px-5 py-7 sm:px-8 lg:py-9">
-          <div className="mx-auto max-w-5xl">
+          <div className={`mx-auto ${active === "finances" ? "max-w-[1500px]" : "max-w-5xl"}`}>
             {!hydrated ? (
               <div className="flex h-64 items-center justify-center text-sm text-muted">
                 Initialisation d&apos;UPPER LIFE…

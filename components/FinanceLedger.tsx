@@ -60,12 +60,12 @@ export function FinanceLedger({ columns, accent, onChange }: Props) {
         <Summary label="Dettes" value={euro(totalByRole("debts"))} hint="À rembourser" accent={accent} />
       </div>
 
-      {/* Columns */}
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Columns — all on one row on wide screens */}
+      <div className="mt-4 grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-6">
         {columns.map((col) => {
           const notes = col.role === "notes";
           return (
-            <div key={col.id} className="glass flex flex-col rounded-xl p-3">
+            <div key={col.id} className="glass flex flex-col rounded-xl p-2.5">
               <input
                 value={col.title}
                 onChange={(e) => setTitle(col.id, e.target.value)}
