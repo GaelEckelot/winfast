@@ -19,6 +19,8 @@ interface Props {
   onDelete: () => void;
   /** Shows a drag handle that arms native drag on the parent wrapper. */
   reorderable?: boolean;
+  /** Small label above the title (e.g. "Objectif 1" in the Vision module). */
+  overline?: string;
 }
 
 /** Toggle `draggable` directly on the closest wrapper (synchronously, so the
@@ -29,7 +31,7 @@ function setWrapperDraggable(el: HTMLElement, on: boolean) {
   if (wrap) wrap.draggable = on;
 }
 
-export function ProjectCard({ project, accent, onChange, onDelete, reorderable }: Props) {
+export function ProjectCard({ project, accent, onChange, onDelete, reorderable, overline }: Props) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const st = STATUS[project.status];
@@ -104,10 +106,19 @@ export function ProjectCard({ project, accent, onChange, onDelete, reorderable }
               {st.label}
             </button>
           </div>
+          {overline && (
+            <div
+              className="mt-2 text-[11px] font-semibold uppercase tracking-[0.16em]"
+              style={{ color: accent }}
+            >
+              {overline}
+            </div>
+          )}
           <input
             value={project.name}
             onChange={(e) => onChange({ ...project, name: e.target.value })}
-            className="mt-2 w-full truncate bg-transparent text-[15px] font-semibold text-ink outline-none focus:text-accent-soft"
+            placeholder={overline ? "Titre de l'objectif…" : undefined}
+            className={`${overline ? "mt-0.5" : "mt-2"} w-full truncate bg-transparent text-[15px] font-semibold text-ink outline-none placeholder:text-muted/50 focus:text-accent-soft`}
           />
           {project.description && (
             <p className="mt-0.5 line-clamp-2 text-xs text-muted">{project.description}</p>

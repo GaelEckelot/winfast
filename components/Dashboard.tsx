@@ -72,6 +72,7 @@ export function Dashboard({ domain, state, onChange }: Props) {
 
   const isFinance = domain.id === "finances";
   const isKnowledge = domain.id === "knowledge";
+  const isVision = domain.id === "vision";
   const hasProjects = !isFinance && !isKnowledge;
 
   const tasksTotal = state.projects.reduce((a, p) => a + p.tasks.length, 0);
@@ -167,7 +168,7 @@ export function Dashboard({ domain, state, onChange }: Props) {
       ) : (
         <section className="mt-8">
         <div className="flex items-center justify-between">
-          <SectionTitle>Projets en cours</SectionTitle>
+          <SectionTitle>{isVision ? "Objectifs" : "Projets en cours"}</SectionTitle>
           <button
             onClick={addProject}
             className="flex items-center gap-1.5 rounded-lg border border-line/10 px-3 py-1.5 text-xs font-medium text-ink/80 transition-colors hover:border-line/25 hover:text-ink"
@@ -175,10 +176,10 @@ export function Dashboard({ domain, state, onChange }: Props) {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M12 5v14M5 12h14" />
             </svg>
-            Nouveau projet
+            {isVision ? "Nouvel objectif" : "Nouveau projet"}
           </button>
         </div>
-        <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <div className={`mt-3 grid grid-cols-1 gap-3 ${isVision ? "" : "lg:grid-cols-2"}`}>
           {state.projects.map((p, i) => (
             <div
               key={p.id}
@@ -203,12 +204,15 @@ export function Dashboard({ domain, state, onChange }: Props) {
                 onChange={updateProject}
                 onDelete={() => deleteProject(p.id)}
                 reorderable
+                overline={isVision ? `Objectif ${i + 1}` : undefined}
               />
             </div>
           ))}
           {state.projects.length === 0 && (
             <div className="glass col-span-full rounded-xl p-8 text-center text-sm text-muted">
-              Aucun projet. Crée ton premier projet pour ce module.
+              {isVision
+                ? "Aucun objectif. Crée ton premier objectif."
+                : "Aucun projet. Crée ton premier projet pour ce module."}
             </div>
           )}
         </div>
