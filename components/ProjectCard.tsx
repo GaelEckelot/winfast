@@ -17,9 +17,19 @@ interface Props {
   accent: string;
   onChange: (p: Project) => void;
   onDelete: () => void;
+  /** Shows a drag handle that arms native drag on the parent wrapper. */
+  reorderable?: boolean;
 }
 
-export function ProjectCard({ project, accent, onChange, onDelete }: Props) {
+/** Toggle `draggable` directly on the closest wrapper (synchronously, so the
+ *  browser sees it before `dragstart` fires — a React state update would be
+ *  too late and the drag would never start). */
+function setWrapperDraggable(el: HTMLElement, on: boolean) {
+  const wrap = el.closest<HTMLElement>("[data-drag-wrapper]");
+  if (wrap) wrap.draggable = on;
+}
+
+export function ProjectCard({ project, accent, onChange, onDelete, reorderable }: Props) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const st = STATUS[project.status];
@@ -64,6 +74,26 @@ export function ProjectCard({ project, accent, onChange, onDelete }: Props) {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
+            {reorderable && (
+              <span
+                onMouseDown={(e) => setWrapperDraggable(e.currentTarget, true)}
+                onMouseUp={(e) => setWrapperDraggable(e.currentTarget, false)}
+                onTouchStart={(e) => setWrapperDraggable(e.currentTarget, true)}
+                onTouchEnd={(e) => setWrapperDraggable(e.currentTarget, false)}
+                title="Glisser pour réordonner"
+                aria-label="Glisser pour réordonner"
+                className="-ml-1 flex h-5 w-4 shrink-0 cursor-grab items-center justify-center text-muted opacity-40 transition-opacity hover:opacity-80 active:cursor-grabbing"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <circle cx="9" cy="6" r="1.5" />
+                  <circle cx="15" cy="6" r="1.5" />
+                  <circle cx="9" cy="12" r="1.5" />
+                  <circle cx="15" cy="12" r="1.5" />
+                  <circle cx="9" cy="18" r="1.5" />
+                  <circle cx="15" cy="18" r="1.5" />
+                </svg>
+              </span>
+            )}
             <button
               onClick={cycleStatus}
               title="Changer le statut"

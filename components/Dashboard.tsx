@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type {
   DomainMeta,
   DomainState,
@@ -22,6 +23,18 @@ interface Props {
 }
 
 export function Dashboard({ domain, state, onChange }: Props) {
+  // Drag & drop reordering for projects (same UX as the Knowledge view).
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+
+  function moveProject(from: number, to: number) {
+    onChange((s) => {
+      const next = [...s.projects];
+      const [item] = next.splice(from, 1);
+      next.splice(to, 0, item);
+      return { ...s, projects: next };
+    });
+  }
+
   function updateKpi(k: Kpi) {
     onChange((s) => ({ ...s, kpis: s.kpis.map((x) => (x.id === k.id ? k : x)) }));
   }
@@ -166,14 +179,32 @@ export function Dashboard({ domain, state, onChange }: Props) {
           </button>
         </div>
         <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
-          {state.projects.map((p) => (
-            <ProjectCard
+          {state.projects.map((p, i) => (
+            <div
               key={p.id}
-              project={p}
-              accent={domain.accent}
-              onChange={updateProject}
-              onDelete={() => deleteProject(p.id)}
-            />
+              data-drag-wrapper
+              onDragStart={() => setDragIndex(i)}
+              onDragOver={(e) => {
+                e.preventDefault();
+                if (dragIndex !== null && dragIndex !== i) {
+                  moveProject(dragIndex, i);
+                  setDragIndex(i);
+                }
+              }}
+              onDragEnd={(e) => {
+                e.currentTarget.draggable = false;
+                setDragIndex(null);
+              }}
+              className={`transition-opacity ${dragIndex === i ? "opacity-40" : ""}`}
+            >
+              <ProjectCard
+                project={p}
+                accent={domain.accent}
+                onChange={updateProject}
+                onDelete={() => deleteProject(p.id)}
+                reorderable
+              />
+            </div>
           ))}
           {state.projects.length === 0 && (
             <div className="glass col-span-full rounded-xl p-8 text-center text-sm text-muted">

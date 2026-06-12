@@ -74,8 +74,13 @@ d'erreur). Avec une clé Anthropic (modèle `claude-opus-4-8`), il devient un ch
 `resolveApiKey()` ignore les valeurs placeholder. Le copilote peut être global (Accueil) ou par module.
 
 ## Conventions de travail
-- Brancher sur `claude/blissful-newton-2zob4w` (PR #1 vers `main`). Committer en **français**,
-  messages descriptifs. Pousser après chaque évolution validée.
+- **Branche de travail** : chaque session web reçoit une branche auto-générée
+  (`claude/<nom-aléatoire>`) imposée par l'environnement — c'est elle qu'il faut utiliser,
+  PAS un nom codé en dur ici. Au début d'une session, **demander à l'utilisateur** s'il veut
+  consolider le travail sur sa branche/PR principale (historiquement `claude/blissful-newton-2zob4w`,
+  PR #1 vers `main`) plutôt que de laisser les commits éparpillés sur la branche de session.
+  Ne jamais pousser sur une autre branche que celle de la session sans accord explicite.
+- Committer en **français**, messages descriptifs. Pousser après chaque évolution validée.
 - UI/texte **en français**.
 - L'utilisateur veut souvent une **capture** pour valider — mais c'est coûteux en tokens ;
   proposer le « mode économe » si besoin.
