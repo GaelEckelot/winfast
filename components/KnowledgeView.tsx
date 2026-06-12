@@ -11,6 +11,7 @@ interface Props {
 
 export function KnowledgeView({ domains, accent, onChange }: Props) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
   const selected = domains.find((d) => d.id === selectedId) ?? null;
 
   function update(id: string, patch: Partial<KnowledgeDomain>) {
@@ -24,6 +25,12 @@ export function KnowledgeView({ domains, accent, onChange }: Props) {
   function remove(id: string) {
     onChange(domains.filter((d) => d.id !== id));
     if (selectedId === id) setSelectedId(null);
+  }
+  function moveDomain(from: number, to: number) {
+    const next = [...domains];
+    const [item] = next.splice(from, 1);
+    next.splice(to, 0, item);
+    onChange(next);
   }
 
   // Note page (free writing) for the selected domain
@@ -84,13 +91,25 @@ export function KnowledgeView({ domains, accent, onChange }: Props) {
       </div>
 
       <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {domains.map((d) => {
+        {domains.map((d, i) => {
           const preview = d.notes.trim().replace(/\s+/g, " ").slice(0, 110);
           return (
             <button
               key={d.id}
               onClick={() => setSelectedId(d.id)}
-              className="group/dom glass glass-hover relative overflow-hidden rounded-xl p-4 text-left"
+              draggable
+              onDragStart={() => setDragIndex(i)}
+              onDragOver={(e) => {
+                e.preventDefault();
+                if (dragIndex !== null && dragIndex !== i) {
+                  moveDomain(dragIndex, i);
+                  setDragIndex(i);
+                }
+              }}
+              onDragEnd={() => setDragIndex(null)}
+              className={`group/dom glass glass-hover relative cursor-grab select-none overflow-hidden rounded-xl p-4 text-left transition-opacity active:cursor-grabbing ${
+                dragIndex === i ? "opacity-40" : ""
+              }`}
             >
               <span
                 className="absolute left-0 top-0 h-full w-[3px]"
@@ -109,19 +128,19 @@ export function KnowledgeView({ domains, accent, onChange }: Props) {
                   </span>
                   <span className="text-[15px] font-semibold text-ink">{d.title}</span>
                 </div>
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke={accent}
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="translate-x-0 opacity-50 transition-all group-hover/dom:translate-x-1 group-hover/dom:opacity-100"
+                <span
+                  className="shrink-0 text-muted opacity-40 transition-opacity group-hover/dom:opacity-80"
+                  title="Glisser pour réordonner"
                 >
-                  <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <circle cx="9" cy="6" r="1.5" />
+                    <circle cx="15" cy="6" r="1.5" />
+                    <circle cx="9" cy="12" r="1.5" />
+                    <circle cx="15" cy="12" r="1.5" />
+                    <circle cx="9" cy="18" r="1.5" />
+                    <circle cx="15" cy="18" r="1.5" />
+                  </svg>
+                </span>
               </div>
               <p className="mt-3 line-clamp-2 text-[12px] leading-relaxed text-muted">
                 {preview || "Domaine vide — clique pour écrire."}
