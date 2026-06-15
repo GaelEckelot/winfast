@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import type {
   DomainMeta,
   DomainState,
@@ -8,13 +7,15 @@ import type {
   KnowledgeDomain,
   LedgerColumn,
   Project,
+  Sop,
 } from "@/lib/types";
 import { emptyKpi, emptyProject } from "@/lib/store";
 import { Icon } from "./Icon";
 import { KpiCard } from "./KpiCard";
-import { ProjectCard } from "./ProjectCard";
+import { ProjectList } from "./ProjectList";
 import { FinanceLedger } from "./FinanceLedger";
 import { KnowledgeView } from "./KnowledgeView";
+import { BusinessBody } from "./SopView";
 
 interface Props {
   domain: DomainMeta;
@@ -23,9 +24,6 @@ interface Props {
 }
 
 export function Dashboard({ domain, state, onChange }: Props) {
-  // Drag & drop reordering for projects (same UX as the Knowledge view).
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
-
   function moveProject(from: number, to: number) {
     onChange((s) => {
       const next = [...s.projects];
@@ -70,10 +68,24 @@ export function Dashboard({ domain, state, onChange }: Props) {
     onChange((s) => ({ ...s, knowledge: next }));
   }
 
+  function updateSops(next: Sop[]) {
+    onChange((s) => ({ ...s, sops: next }));
+  }
+
   const isFinance = domain.id === "finances";
   const isKnowledge = domain.id === "knowledge";
   const isVision = domain.id === "vision";
+  const isBusiness = domain.id === "business";
   const hasProjects = !isFinance && !isKnowledge;
+
+  const projectCommon = {
+    projects: state.projects,
+    accent: domain.accent,
+    onUpdate: updateProject,
+    onDelete: deleteProject,
+    onAdd: addProject,
+    onMove: moveProject,
+  };
 
   const tasksTotal = state.projects.reduce((a, p) => a + p.tasks.length, 0);
   const tasksDone = state.projects.reduce(
@@ -152,7 +164,8 @@ export function Dashboard({ domain, state, onChange }: Props) {
         </div>
       </div>
 
-      {/* Module-specific body: Finances → ledger, Knowledge → domains, others → projects */}
+      {/* Module-specific body: Finances → ledger, Knowledge → domains,
+          Business → SOP + projects (2 cols), others → projects */}
       {isFinance ? (
         <FinanceLedger
           columns={state.ledger ?? []}
@@ -165,58 +178,35 @@ export function Dashboard({ domain, state, onChange }: Props) {
           accent={domain.accent}
           onChange={updateKnowledge}
         />
+      ) : isBusiness ? (
+        <BusinessBody
+          sops={state.sops ?? []}
+          accent={domain.accent}
+          onChange={updateSops}
+          projectList={
+            <ProjectList
+              {...projectCommon}
+              title="Projets en cours"
+              addLabel="Nouveau projet"
+              emptyText="Aucun projet. Crée ton premier projet pour ce module."
+              singleColumn
+              className=""
+            />
+          }
+        />
       ) : (
-        <section className="mt-8">
-        <div className="flex items-center justify-between">
-          <SectionTitle>{isVision ? "Objectifs" : "Projets en cours"}</SectionTitle>
-          <button
-            onClick={addProject}
-            className="flex items-center gap-1.5 rounded-lg border border-line/10 px-3 py-1.5 text-xs font-medium text-ink/80 transition-colors hover:border-line/25 hover:text-ink"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M12 5v14M5 12h14" />
-            </svg>
-            {isVision ? "Nouvel objectif" : "Nouveau projet"}
-          </button>
-        </div>
-        <div className={`mt-3 grid grid-cols-1 gap-3 ${isVision ? "" : "lg:grid-cols-2"}`}>
-          {state.projects.map((p, i) => (
-            <div
-              key={p.id}
-              data-drag-wrapper
-              onDragStart={() => setDragIndex(i)}
-              onDragOver={(e) => {
-                e.preventDefault();
-                if (dragIndex !== null && dragIndex !== i) {
-                  moveProject(dragIndex, i);
-                  setDragIndex(i);
-                }
-              }}
-              onDragEnd={(e) => {
-                e.currentTarget.draggable = false;
-                setDragIndex(null);
-              }}
-              className={`transition-opacity ${dragIndex === i ? "opacity-40" : ""}`}
-            >
-              <ProjectCard
-                project={p}
-                accent={domain.accent}
-                onChange={updateProject}
-                onDelete={() => deleteProject(p.id)}
-                reorderable
-                overline={isVision ? `Objectif ${i + 1}` : undefined}
-              />
-            </div>
-          ))}
-          {state.projects.length === 0 && (
-            <div className="glass col-span-full rounded-xl p-8 text-center text-sm text-muted">
-              {isVision
-                ? "Aucun objectif. Crée ton premier objectif."
-                : "Aucun projet. Crée ton premier projet pour ce module."}
-            </div>
-          )}
-        </div>
-      </section>
+        <ProjectList
+          {...projectCommon}
+          title={isVision ? "Objectifs" : "Projets en cours"}
+          addLabel={isVision ? "Nouvel objectif" : "Nouveau projet"}
+          emptyText={
+            isVision
+              ? "Aucun objectif. Crée ton premier objectif."
+              : "Aucun projet. Crée ton premier projet pour ce module."
+          }
+          singleColumn={isVision}
+          overlineWord={isVision ? "Objectif" : undefined}
+        />
       )}
     </div>
   );

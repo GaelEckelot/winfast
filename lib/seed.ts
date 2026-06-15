@@ -225,6 +225,27 @@ export const SEED: AppData = {
         tasks: [{ id: "t1", label: "Connecter les sources", done: false }],
       },
     ],
+    sops: [
+      {
+        id: "s1",
+        title: "Onboarding nouveau client",
+        steps: [
+          { id: "st1", label: "Envoyer l'email de bienvenue + accès", done: true },
+          { id: "st2", label: "Appel de cadrage (objectifs, KPIs)", done: true },
+          { id: "st3", label: "Configurer le compte et les intégrations", done: false },
+          { id: "st4", label: "Planifier le point de suivi à J+30", done: false },
+        ],
+      },
+      {
+        id: "s2",
+        title: "Publication de contenu",
+        steps: [
+          { id: "st1", label: "Rédiger le brouillon", done: false },
+          { id: "st2", label: "Relire et optimiser le SEO", done: false },
+          { id: "st3", label: "Programmer + diffuser sur les canaux", done: false },
+        ],
+      },
+    ],
   },
   travail: {
     kpis: [

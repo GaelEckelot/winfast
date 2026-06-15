@@ -71,7 +71,7 @@ export function FinanceLedger({ columns, accent, onChange }: Props) {
               <input
                 value={col.title}
                 onChange={(e) => setTitle(col.id, e.target.value)}
-                className="mb-2 w-full min-w-0 bg-transparent text-[13px] font-semibold tracking-tight text-ink outline-none focus:text-accent-soft"
+                className="mb-2 w-full min-w-0 bg-transparent text-center text-[13px] font-semibold tracking-tight text-ink outline-none focus:text-accent-soft"
               />
 
               <div className={`flex-1 ${notes ? "space-y-0.5" : "divide-y divide-line/10"}`}>
