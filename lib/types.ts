@@ -40,6 +40,20 @@ export interface KnowledgeDomain {
   notes: string;
 }
 
+/** A single step of a Standard Operating Procedure (Business module). */
+export interface SopStep {
+  id: string;
+  label: string;
+  done: boolean;
+}
+
+/** A Standard Operating Procedure — an openable, step-by-step procedure page. */
+export interface Sop {
+  id: string;
+  title: string;
+  steps: SopStep[];
+}
+
 export type ProjectStatus = "active" | "planned" | "paused" | "done";
 
 export interface Task {
@@ -67,6 +81,8 @@ export interface DomainState {
   ledger?: LedgerColumn[];
   /** Knowledge-specific free-note domains (only used by the Knowledge module). */
   knowledge?: KnowledgeDomain[];
+  /** Business-specific Standard Operating Procedures (only used by the Business module). */
+  sops?: Sop[];
 }
 
 export type LedgerRole =
