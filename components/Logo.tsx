@@ -3,7 +3,7 @@ interface LogoProps {
   className?: string;
 }
 
-/** UPPER LIFE mark — gold ascending triangle on a black tile. */
+/** WinFast mark — gold ascending triangle on a black tile. */
 export function Logo({ size = 36, className }: LogoProps) {
   return (
     <div
