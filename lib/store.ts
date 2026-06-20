@@ -136,11 +136,14 @@ export function useStore(): Store {
         } = await supabase.auth.getUser();
         if (user && !cancelled) {
           userIdRef.current = user.id;
-          const { data: row } = await supabase
+          const { data: row, error: selErr } = await supabase
             .from("app_state")
             .select("data, todos, name")
             .eq("user_id", user.id)
             .maybeSingle();
+          if (selErr) {
+            console.error("WinFast — échec lecture Supabase (app_state):", selErr.message, selErr);
+          }
           if (cancelled) return;
           if (row?.data) {
             setData(normalize(row.data as AppData));
@@ -152,9 +155,12 @@ export function useStore(): Store {
             setData(seeded);
             setTodos(DEFAULT_TODOS);
             setNameState("");
-            await supabase
+            const { error: insErr } = await supabase
               .from("app_state")
               .upsert({ user_id: user.id, data: seeded, todos: DEFAULT_TODOS, name: "" });
+            if (insErr) {
+              console.error("WinFast — échec création ligne Supabase:", insErr.message, insErr);
+            }
           }
           setHydrated(true);
           return;
@@ -180,10 +186,13 @@ export function useStore(): Store {
     const uid = userIdRef.current;
     if (supabase && uid) {
       if (saveTimer.current) clearTimeout(saveTimer.current);
-      saveTimer.current = setTimeout(() => {
-        void supabase
+      saveTimer.current = setTimeout(async () => {
+        const { error } = await supabase
           .from("app_state")
           .upsert({ user_id: uid, data, todos, name, updated_at: new Date().toISOString() });
+        if (error) {
+          console.error("WinFast — échec sauvegarde Supabase:", error.message, error);
+        }
       }, 700);
     } else {
       try {
