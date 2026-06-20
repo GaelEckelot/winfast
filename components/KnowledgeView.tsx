@@ -12,6 +12,7 @@ interface Props {
 export function KnowledgeView({ domains, accent, onChange }: Props) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [autoFocusTitle, setAutoFocusTitle] = useState(false);
   const selected = domains.find((d) => d.id === selectedId) ?? null;
 
   function update(id: string, patch: Partial<KnowledgeDomain>) {
@@ -20,6 +21,11 @@ export function KnowledgeView({ domains, accent, onChange }: Props) {
   function add() {
     const id = Math.random().toString(36).slice(2, 8);
     onChange([...domains, { id, title: "Nouveau domaine", notes: "" }]);
+    setAutoFocusTitle(true);
+    setSelectedId(id);
+  }
+  function openDomain(id: string) {
+    setAutoFocusTitle(false);
     setSelectedId(id);
   }
   function remove(id: string) {
@@ -49,6 +55,7 @@ export function KnowledgeView({ domains, accent, onChange }: Props) {
             </svg>
           </button>
           <input
+            autoFocus={autoFocusTitle}
             value={selected.title}
             onChange={(e) => update(selected.id, { title: e.target.value })}
             className="min-w-0 flex-1 bg-transparent text-2xl font-semibold tracking-tight text-ink outline-none focus:text-accent-soft"
@@ -96,7 +103,7 @@ export function KnowledgeView({ domains, accent, onChange }: Props) {
           return (
             <button
               key={d.id}
-              onClick={() => setSelectedId(d.id)}
+              onClick={() => openDomain(d.id)}
               draggable
               onDragStart={() => setDragIndex(i)}
               onDragOver={(e) => {

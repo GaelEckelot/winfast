@@ -21,6 +21,8 @@ interface Props {
   reorderable?: boolean;
   /** Small label above the title (e.g. "Objectif 1" in the Vision module). */
   overline?: string;
+  /** Focus the title input on mount (used right after adding a project). */
+  autoFocus?: boolean;
 }
 
 /** Toggle `draggable` directly on the closest wrapper (synchronously, so the
@@ -31,7 +33,7 @@ function setWrapperDraggable(el: HTMLElement, on: boolean) {
   if (wrap) wrap.draggable = on;
 }
 
-export function ProjectCard({ project, accent, onChange, onDelete, reorderable, overline }: Props) {
+export function ProjectCard({ project, accent, onChange, onDelete, reorderable, overline, autoFocus }: Props) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const st = STATUS[project.status];
@@ -121,6 +123,7 @@ export function ProjectCard({ project, accent, onChange, onDelete, reorderable, 
                 </span>
               </div>
               <input
+                autoFocus={autoFocus}
                 value={project.name}
                 onChange={(e) => onChange({ ...project, name: e.target.value })}
                 placeholder="Titre de l'objectif…"
@@ -134,6 +137,7 @@ export function ProjectCard({ project, accent, onChange, onDelete, reorderable, 
               <div className="flex items-center gap-2">
                 {gripHandle}
                 <input
+                  autoFocus={autoFocus}
                   value={project.name}
                   onChange={(e) => onChange({ ...project, name: e.target.value })}
                   placeholder="Titre…"

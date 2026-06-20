@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Project } from "@/lib/types";
 import { ProjectCard } from "./ProjectCard";
 
@@ -38,6 +38,13 @@ export function ProjectList({
 }: Props) {
   // Drag & drop reordering (same UX as the Knowledge view).
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+
+  // Only autofocus cards created *after* the initial mount (i.e. via "add"),
+  // never the seed cards on first render / tab switch.
+  const mounted = useRef(false);
+  useEffect(() => {
+    mounted.current = true;
+  }, []);
 
   return (
     <section className={className}>
@@ -79,6 +86,7 @@ export function ProjectList({
               onDelete={() => onDelete(p.id)}
               reorderable
               overline={overlineWord ? `${overlineWord} ${i + 1}` : undefined}
+              autoFocus={mounted.current}
             />
           </div>
         ))}

@@ -18,6 +18,7 @@ export function BusinessBody({
   projectList: React.ReactNode;
 }) {
   const [openId, setOpenId] = useState<string | null>(null);
+  const [autoFocusTitle, setAutoFocusTitle] = useState(false);
   const open = sops.find((s) => s.id === openId) ?? null;
 
   if (open) {
@@ -25,6 +26,7 @@ export function BusinessBody({
       <SopPage
         sop={open}
         accent={accent}
+        autoFocusTitle={autoFocusTitle}
         onBack={() => setOpenId(null)}
         onChange={(patch) =>
           onChange(sops.map((s) => (s.id === open.id ? { ...s, ...patch } : s)))
@@ -35,7 +37,19 @@ export function BusinessBody({
 
   return (
     <div className="mt-8 grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
-      <SopList sops={sops} accent={accent} onOpen={setOpenId} onChange={onChange} />
+      <SopList
+        sops={sops}
+        accent={accent}
+        onOpen={(id) => {
+          setAutoFocusTitle(false);
+          setOpenId(id);
+        }}
+        onCreate={(id) => {
+          setAutoFocusTitle(true);
+          setOpenId(id);
+        }}
+        onChange={onChange}
+      />
       <div className="lg:col-span-2">{projectList}</div>
     </div>
   );
@@ -46,11 +60,13 @@ function SopList({
   sops,
   accent,
   onOpen,
+  onCreate,
   onChange,
 }: {
   sops: Sop[];
   accent: string;
   onOpen: (id: string) => void;
+  onCreate: (id: string) => void;
   onChange: (next: Sop[]) => void;
 }) {
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
@@ -58,7 +74,7 @@ function SopList({
   function add() {
     const id = newId();
     onChange([...sops, { id, title: "Nouveau SOP", steps: [] }]);
-    onOpen(id);
+    onCreate(id);
   }
   function remove(id: string) {
     onChange(sops.filter((s) => s.id !== id));
@@ -165,11 +181,13 @@ function SopList({
 function SopPage({
   sop,
   accent,
+  autoFocusTitle,
   onBack,
   onChange,
 }: {
   sop: Sop;
   accent: string;
+  autoFocusTitle?: boolean;
   onBack: () => void;
   onChange: (patch: Partial<Sop>) => void;
 }) {
@@ -209,6 +227,7 @@ function SopPage({
         </button>
         <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">S.O.P</span>
         <input
+          autoFocus={autoFocusTitle}
           value={sop.title}
           onChange={(e) => onChange({ title: e.target.value })}
           className="min-w-0 flex-1 bg-transparent text-2xl font-semibold tracking-tight text-ink outline-none focus:text-accent-soft"

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { DOMAINS, HOME_DOMAIN } from "@/lib/domains";
 import type { DomainId } from "@/lib/types";
 import { globalState, useStore } from "@/lib/store";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { Icon } from "@/components/Icon";
 import { Logo } from "@/components/Logo";
 import { Dashboard } from "@/components/Dashboard";
@@ -70,6 +71,21 @@ export default function Page() {
                 <path d="M3 3v5h5" />
               </svg>
             </button>
+            {isSupabaseConfigured() && (
+              <form action="/auth/signout" method="post" className="flex">
+                <button
+                  type="submit"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-line/5 hover:text-ink"
+                  title="Se déconnecter"
+                  aria-label="Se déconnecter"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <path d="M16 17l5-5-5-5M21 12H9" />
+                  </svg>
+                </button>
+              </form>
+            )}
             <button
               onClick={() => setAssistantOpen((o) => !o)}
               className="hidden h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs sm:flex"
@@ -208,7 +224,7 @@ function NameModal({ onSubmit }: { onSubmit: (name: string) => void }) {
         >
           Commencer
         </button>
-        <p className="mt-3 text-[11px] text-muted">Stocké uniquement sur cet appareil.</p>
+        <p className="mt-3 text-[11px] text-muted">Tu pourras le changer plus tard.</p>
       </form>
     </div>
   );

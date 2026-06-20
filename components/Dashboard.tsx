@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import type {
   DomainMeta,
   DomainState,
@@ -24,6 +25,12 @@ interface Props {
 }
 
 export function Dashboard({ domain, state, onChange }: Props) {
+  // Only autofocus a KPI created after the initial mount (via "Nouveau KPI").
+  const kpiMounted = useRef(false);
+  useEffect(() => {
+    kpiMounted.current = true;
+  }, []);
+
   function moveProject(from: number, to: number) {
     onChange((s) => {
       const next = [...s.projects];
@@ -158,6 +165,7 @@ export function Dashboard({ domain, state, onChange }: Props) {
                 onChange={updateKpi}
                 onDelete={() => deleteKpi(k.id)}
                 readOnly={!!k.derived}
+                autoFocus={kpiMounted.current && !k.derived}
               />
             ))}
           </div>

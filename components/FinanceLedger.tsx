@@ -22,6 +22,12 @@ interface Props {
 }
 
 export function FinanceLedger({ columns, accent, onChange }: Props) {
+  // Only autofocus rows added after the initial mount (via the "Ligne" button).
+  const mounted = useRef(false);
+  useEffect(() => {
+    mounted.current = true;
+  }, []);
+
   const colTotal = (c: LedgerColumn) => c.rows.reduce((a, r) => a + (r.amount ?? 0), 0);
   const totalByRole = (role: LedgerRole) =>
     columns.filter((c) => c.role === role).reduce((a, c) => a + colTotal(c), 0);
@@ -84,9 +90,11 @@ export function FinanceLedger({ columns, accent, onChange }: Props) {
                       <AutoTextarea
                         value={r.label}
                         onChange={(v) => updateRow(col.id, r.id, { label: v })}
+                        autoFocus={mounted.current}
                       />
                     ) : (
                       <input
+                        autoFocus={mounted.current}
                         value={r.label}
                         onChange={(e) => updateRow(col.id, r.id, { label: e.target.value })}
                         placeholder="Libellé"
@@ -156,9 +164,11 @@ export function FinanceLedger({ columns, accent, onChange }: Props) {
 function AutoTextarea({
   value,
   onChange,
+  autoFocus,
 }: {
   value: string;
   onChange: (v: string) => void;
+  autoFocus?: boolean;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
@@ -170,6 +180,7 @@ function AutoTextarea({
   return (
     <textarea
       ref={ref}
+      autoFocus={autoFocus}
       rows={1}
       value={value}
       onChange={(e) => onChange(e.target.value)}

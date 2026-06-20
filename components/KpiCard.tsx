@@ -24,10 +24,12 @@ interface Props {
   onDelete: () => void;
   /** Auto-computed KPI: no editing/logging, just display. */
   readOnly?: boolean;
+  /** Open in edit mode and focus the name on mount (used right after adding). */
+  autoFocus?: boolean;
 }
 
-export function KpiCard({ kpi, accent, onChange, onDelete, readOnly }: Props) {
-  const [editing, setEditing] = useState(false);
+export function KpiCard({ kpi, accent, onChange, onDelete, readOnly, autoFocus }: Props) {
+  const [editing, setEditing] = useState(!!autoFocus);
   const [logging, setLogging] = useState(false);
   const [draft, setDraft] = useState("");
 
@@ -138,6 +140,7 @@ export function KpiCard({ kpi, accent, onChange, onDelete, readOnly }: Props) {
       <div className="pr-12">
         {editing ? (
           <input
+            autoFocus={autoFocus}
             value={kpi.label}
             onChange={(e) => onChange({ ...kpi, label: e.target.value })}
             className="w-full bg-transparent text-xs uppercase tracking-wider text-ink outline-none focus:text-accent-soft"

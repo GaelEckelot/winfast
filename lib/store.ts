@@ -1,8 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AppData, DomainId, DomainState, Kpi, Measurement, Project, TodoItem } from "./types";
 import { SEED } from "./seed";
+import { createClient } from "./supabase/client";
+import { isSupabaseConfigured } from "./supabase/config";
 
 const STORAGE_KEY = "nexus-life-os:v1";
 const TODOS_KEY = "nexus-life-os:todos:v1";
@@ -116,30 +119,91 @@ export function useStore(): Store {
   const [name, setNameState] = useState("");
   const [hydrated, setHydrated] = useState(false);
 
+  // Cloud mode (Supabase) when signed in; otherwise local mode (localStorage).
+  const supabaseRef = useRef<SupabaseClient | null>(null);
+  const userIdRef = useRef<string | null>(null);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Initial load: from Supabase if signed in, else from localStorage.
   useEffect(() => {
-    setData(loadInitial());
-    setTodos(loadTodos());
-    setNameState(loadName());
-    setHydrated(true);
+    let cancelled = false;
+    async function load() {
+      const supabase = isSupabaseConfigured() ? createClient() : null;
+      supabaseRef.current = supabase;
+      if (supabase) {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (user && !cancelled) {
+          userIdRef.current = user.id;
+          const { data: row, error: selErr } = await supabase
+            .from("app_state")
+            .select("data, todos, name")
+            .eq("user_id", user.id)
+            .maybeSingle();
+          if (selErr) {
+            console.error("WinFast — échec lecture Supabase (app_state):", selErr.message, selErr);
+          }
+          if (cancelled) return;
+          if (row?.data) {
+            setData(normalize(row.data as AppData));
+            setTodos(Array.isArray(row.todos) ? (row.todos as TodoItem[]) : DEFAULT_TODOS);
+            setNameState(typeof row.name === "string" ? row.name : "");
+          } else {
+            // First sign-in: seed the account.
+            const seeded = normalize(SEED);
+            setData(seeded);
+            setTodos(DEFAULT_TODOS);
+            setNameState("");
+            const { error: insErr } = await supabase
+              .from("app_state")
+              .upsert({ user_id: user.id, data: seeded, todos: DEFAULT_TODOS, name: "" });
+            if (insErr) {
+              console.error("WinFast — échec création ligne Supabase:", insErr.message, insErr);
+            }
+          }
+          setHydrated(true);
+          return;
+        }
+      }
+      // localStorage fallback (single device, no account).
+      if (cancelled) return;
+      setData(loadInitial());
+      setTodos(loadTodos());
+      setNameState(loadName());
+      setHydrated(true);
+    }
+    void load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
+  // Persist on every change — debounced upsert in the cloud, sync write locally.
   useEffect(() => {
     if (!hydrated) return;
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch {
-      /* quota or privacy mode — ignore */
+    const supabase = supabaseRef.current;
+    const uid = userIdRef.current;
+    if (supabase && uid) {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      saveTimer.current = setTimeout(async () => {
+        const { error } = await supabase
+          .from("app_state")
+          .upsert({ user_id: uid, data, todos, name, updated_at: new Date().toISOString() });
+        if (error) {
+          console.error("WinFast — échec sauvegarde Supabase:", error.message, error);
+        }
+      }, 700);
+    } else {
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        window.localStorage.setItem(TODOS_KEY, JSON.stringify(todos));
+        window.localStorage.setItem(NAME_KEY, name);
+      } catch {
+        /* quota or privacy mode — ignore */
+      }
     }
-  }, [data, hydrated]);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    try {
-      window.localStorage.setItem(TODOS_KEY, JSON.stringify(todos));
-    } catch {
-      /* ignore */
-    }
-  }, [todos, hydrated]);
+  }, [data, todos, name, hydrated]);
 
   const update = useCallback(
     (domain: DomainId, updater: (s: DomainState) => DomainState) => {
@@ -173,13 +237,7 @@ export function useStore(): Store {
   }, []);
 
   const setName = useCallback((value: string) => {
-    const v = value.trim();
-    setNameState(v);
-    try {
-      window.localStorage.setItem(NAME_KEY, v);
-    } catch {
-      /* ignore */
-    }
+    setNameState(value.trim());
   }, []);
 
   const reset = useCallback(() => {

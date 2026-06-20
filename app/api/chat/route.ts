@@ -1,5 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { ChatMessage } from "@/lib/types";
+import { createClient } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -34,6 +36,21 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  // Once Supabase is configured, the copilot is reserved to signed-in users
+  // (prevents the endpoint from being an open, billable AI proxy).
+  if (isSupabaseConfigured()) {
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Non authentifié." }), {
+        status: 401,
+        headers: { "content-type": "application/json" },
+      });
+    }
+  }
+
   const apiKey = resolveApiKey();
   if (!apiKey) {
     return new Response(
