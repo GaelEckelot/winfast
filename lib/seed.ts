@@ -1,5 +1,28 @@
 import type { AppData } from "./types";
 
+/** Local ISO date (avoids UTC drift). */
+function iso(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+    d.getDate(),
+  ).padStart(2, "0")}`;
+}
+
+/** Demo completion log for the current month (varied ratios, up to today). */
+function seedHabitLog(habitIds: string[]): Record<string, string[]> {
+  const log: Record<string, string[]> = {};
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = today.getMonth();
+  for (let day = 1; day <= today.getDate(); day++) {
+    const ratio = (((day * 7 + 3) % 10) + 1) / 10; // 0.1 → 1.0, deterministic
+    const count = Math.round(ratio * habitIds.length);
+    log[iso(new Date(y, m, day))] = habitIds.slice(0, count);
+  }
+  return log;
+}
+
+const SANTE_HABIT_IDS = ["h1", "h2", "h3", "h4", "h5"];
+
 /** Default seed data — realistic placeholders, fully editable & persisted in localStorage. */
 export const SEED: AppData = {
   sante: {
@@ -47,6 +70,16 @@ export const SEED: AppData = {
         tasks: [{ id: "t1", label: "Prendre RDV labo", done: false }],
       },
     ],
+    habits: {
+      habits: [
+        { id: "h1", label: "Méditation 10 min" },
+        { id: "h2", label: "Sport / mobilité" },
+        { id: "h3", label: "Pas d'écran après 22h30" },
+        { id: "h4", label: "2 L d'eau" },
+        { id: "h5", label: "Lecture 15 min" },
+      ],
+      log: seedHabitLog(SANTE_HABIT_IDS),
+    },
   },
   finances: {
     kpis: [

@@ -70,6 +70,7 @@ function normalize(data: AppData): AppData {
       ledger: s.ledger ?? SEED[id].ledger,
       knowledge: s.knowledge ?? SEED[id].knowledge,
       sops: s.sops ?? SEED[id].sops,
+      habits: s.habits ?? SEED[id].habits,
       kpis: s.kpis.map((k) => {
         const withHist =
           k.history && k.history.length >= 2 ? k : { ...k, history: synthHistory(k.value, k.delta) };
@@ -314,6 +315,22 @@ export function globalState(data: AppData, labels: Record<string, string>): Doma
 
 export function newId(): string {
   return Math.random().toString(36).slice(2, 9);
+}
+
+/** Local ISO date (YYYY-MM-DD) — avoids UTC drift from toISOString(). */
+export function isoDate(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+    d.getDate(),
+  ).padStart(2, "0")}`;
+}
+
+/** Today's local ISO date. */
+export function todayISO(): string {
+  return isoDate(new Date());
+}
+
+export function emptyHabitTracker(): import("./types").HabitTracker {
+  return { habits: [], log: {} };
 }
 
 export function emptyKpi(): Kpi {

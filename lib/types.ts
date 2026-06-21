@@ -40,6 +40,19 @@ export interface KnowledgeDomain {
   notes: string;
 }
 
+/** A single trackable habit (Santé module). */
+export interface Habit {
+  id: string;
+  label: string;
+}
+
+/** Habit tracker state: habits + daily completion log (Santé module). */
+export interface HabitTracker {
+  habits: Habit[];
+  /** ISO date (YYYY-MM-DD) → ids of habits completed that day. */
+  log: Record<string, string[]>;
+}
+
 /** A single step of a Standard Operating Procedure (Business module). */
 export interface SopStep {
   id: string;
@@ -83,6 +96,8 @@ export interface DomainState {
   knowledge?: KnowledgeDomain[];
   /** Business-specific Standard Operating Procedures (only used by the Business module). */
   sops?: Sop[];
+  /** Health-specific habit tracker (only used by the Santé module). */
+  habits?: HabitTracker;
 }
 
 export type LedgerRole =
