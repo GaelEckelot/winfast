@@ -29,7 +29,6 @@ export const SEED: AppData = {
     kpis: [
       { id: "k1", label: "Sommeil", value: 7.2, target: 8, unit: "h", trend: "up", delta: 4 },
       { id: "k2", label: "Pas / jour", value: 8400, target: 10000, unit: "", trend: "up", delta: 12 },
-      { id: "k3", label: "Récupération (HRV)", value: 68, target: 75, unit: "ms", trend: "flat", delta: 1 },
       { id: "k4", label: "Stress moyen", value: 38, target: 30, unit: "%", trend: "down", delta: -6 },
     ],
     projects: [
@@ -83,9 +82,7 @@ export const SEED: AppData = {
   },
   finances: {
     kpis: [
-      { id: "k1", label: "Patrimoine net", value: 184500, target: 250000, unit: "€", trend: "up", delta: 8 },
       { id: "k2", label: "Épargne / mois", value: 2100, target: 2500, unit: "€", trend: "up", delta: 5 },
-      { id: "k3", label: "Taux d'épargne", value: 34, target: 40, unit: "%", trend: "flat", delta: 0 },
       { id: "k4", label: "Burn rate", value: 4050, target: 3800, unit: "€", trend: "down", delta: -3 },
     ],
     projects: [
@@ -253,13 +250,63 @@ export const SEED: AppData = {
         ],
       },
     ],
+    clients: [
+      {
+        id: "c1",
+        company: "Atelier Nord",
+        contact: "Camille Roy",
+        stage: "lead",
+        value: 4500,
+        email: "camille@ateliernord.fr",
+        nextAction: "Premier email de prise de contact",
+        notes: "Vient d'un webinaire. Budget à confirmer.",
+      },
+      {
+        id: "c2",
+        company: "Studio Lumen",
+        contact: "Hugo Mercier",
+        stage: "contacted",
+        value: 9000,
+        email: "hugo@studiolumen.com",
+        nextAction: "Caler un appel de découverte",
+        notes: "A répondu, intéressé par l'offre annuelle.",
+      },
+      {
+        id: "c3",
+        company: "Maison Bleue",
+        contact: "Sofia Lambert",
+        stage: "proposal",
+        value: 15000,
+        email: "sofia@maisonbleue.fr",
+        nextAction: "Relancer sur la proposition envoyée",
+        notes: "Devis envoyé le 10. Décision sous 2 semaines.",
+      },
+      {
+        id: "c4",
+        company: "Groupe Vortex",
+        contact: "Yanis Faure",
+        stage: "won",
+        value: 22000,
+        email: "yanis@vortex.io",
+        nextAction: "Lancer l'onboarding",
+        notes: "Signé ! Contrat 12 mois.",
+      },
+      {
+        id: "c5",
+        company: "Pixel & Co",
+        contact: "Léa Dubois",
+        stage: "lost",
+        value: 6000,
+        email: "lea@pixelco.fr",
+        nextAction: "Recontacter dans 6 mois",
+        notes: "Parti chez un concurrent moins cher.",
+      },
+    ],
   },
   travail: {
     kpis: [
       { id: "k1", label: "Heures focus / sem", value: 22, target: 28, unit: "h", trend: "up", delta: 9 },
-      { id: "k2", label: "Tâches clôturées", value: 41, target: 50, unit: "", trend: "up", delta: 14 },
       { id: "k3", label: "Réunions / sem", value: 11, target: 8, unit: "", trend: "down", delta: -10 },
-      { id: "k4", label: "Inbox zero", value: 3, target: 5, unit: "j", trend: "flat", delta: 0 },
     ],
     projects: [
       {
@@ -303,9 +350,7 @@ export const SEED: AppData = {
   vision: {
     kpis: [
       { id: "k1", label: "Objectifs 2026", value: 5, target: 5, unit: "", trend: "flat", delta: 0 },
-      { id: "k2", label: "En bonne voie", value: 3, target: 5, unit: "", trend: "up", delta: 1 },
       { id: "k3", label: "Progression année", value: 34, target: 100, unit: "%", trend: "up", delta: 0, derived: "avg_progress" },
-      { id: "k4", label: "Alignement de vie", value: 71, target: 90, unit: "%", trend: "up", delta: 4 },
     ],
     projects: [
       {
@@ -382,9 +427,7 @@ export const SEED: AppData = {
   knowledge: {
     kpis: [
       { id: "k1", label: "Notes", value: 312, target: 400, unit: "", trend: "up", delta: 8 },
-      { id: "k2", label: "Sources traitées", value: 47, target: 60, unit: "", trend: "up", delta: 5 },
       { id: "k3", label: "Connexions", value: 128, target: 200, unit: "", trend: "up", delta: 10 },
-      { id: "k4", label: "Backlog lecture", value: 23, target: 10, unit: "", trend: "down", delta: -4 },
     ],
     projects: [
       {

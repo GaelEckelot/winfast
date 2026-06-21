@@ -58,6 +58,30 @@ function synthHistory(value: number, delta: number, n = 8): Measurement[] {
   return pts;
 }
 
+/**
+ * Default seed KPIs that were retired and must be pruned from existing accounts.
+ * Matched by domain + id + exact label so user-renamed KPIs are preserved.
+ */
+const REMOVED_KPIS: Partial<Record<DomainId, { id: string; label: string }[]>> = {
+  sante: [{ id: "k3", label: "Récupération (HRV)" }],
+  finances: [
+    { id: "k1", label: "Patrimoine net" },
+    { id: "k3", label: "Taux d'épargne" },
+  ],
+  travail: [
+    { id: "k2", label: "Tâches clôturées" },
+    { id: "k4", label: "Inbox zero" },
+  ],
+  vision: [
+    { id: "k2", label: "En bonne voie" },
+    { id: "k4", label: "Alignement de vie" },
+  ],
+  knowledge: [
+    { id: "k2", label: "Sources traitées" },
+    { id: "k4", label: "Backlog lecture" },
+  ],
+};
+
 /** Ensure every KPI carries a history (synthesize one for legacy/seed data). */
 function normalize(data: AppData): AppData {
   const ids = Object.keys(data) as DomainId[];
@@ -70,14 +94,20 @@ function normalize(data: AppData): AppData {
       ledger: s.ledger ?? SEED[id].ledger,
       knowledge: s.knowledge ?? SEED[id].knowledge,
       sops: s.sops ?? SEED[id].sops,
+      clients: s.clients ?? SEED[id].clients,
       habits: s.habits ?? SEED[id].habits,
-      kpis: s.kpis.map((k) => {
-        const withHist =
-          k.history && k.history.length >= 2 ? k : { ...k, history: synthHistory(k.value, k.delta) };
-        // Re-apply auto-computed flags from seed (by id) to previously saved KPIs.
-        const seedK = seedKpis.find((sk) => sk.id === k.id);
-        return seedK?.derived ? { ...withHist, derived: seedK.derived } : withHist;
-      }),
+      kpis: s.kpis
+        // Drop retired default KPIs from existing accounts (id + label match).
+        .filter(
+          (k) => !(REMOVED_KPIS[id] ?? []).some((r) => r.id === k.id && r.label === k.label),
+        )
+        .map((k) => {
+          const withHist =
+            k.history && k.history.length >= 2 ? k : { ...k, history: synthHistory(k.value, k.delta) };
+          // Re-apply auto-computed flags from seed (by id) to previously saved KPIs.
+          const seedK = seedKpis.find((sk) => sk.id === k.id);
+          return seedK?.derived ? { ...withHist, derived: seedK.derived } : withHist;
+        }),
     };
   }
   return out;
@@ -331,6 +361,21 @@ export function todayISO(): string {
 
 export function emptyHabitTracker(): import("./types").HabitTracker {
   return { habits: [], log: {} };
+}
+
+export function emptyClient(
+  stage: import("./types").CrmStage = "lead",
+): import("./types").Client {
+  return {
+    id: newId(),
+    company: "",
+    contact: "",
+    stage,
+    value: 0,
+    email: "",
+    nextAction: "",
+    notes: "",
+  };
 }
 
 export function emptyKpi(): Kpi {
