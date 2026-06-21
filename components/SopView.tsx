@@ -11,11 +11,13 @@ export function BusinessBody({
   accent,
   onChange,
   projectList,
+  crm,
 }: {
   sops: Sop[];
   accent: string;
   onChange: (next: Sop[]) => void;
   projectList: React.ReactNode;
+  crm?: React.ReactNode;
 }) {
   const [openId, setOpenId] = useState<string | null>(null);
   const [autoFocusTitle, setAutoFocusTitle] = useState(false);
@@ -36,8 +38,10 @@ export function BusinessBody({
   }
 
   return (
-    <div className="mt-8 grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
-      <SopList
+    <>
+      {crm}
+      <div className="mt-8 grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
+        <SopList
         sops={sops}
         accent={accent}
         onOpen={(id) => {
@@ -50,8 +54,9 @@ export function BusinessBody({
         }}
         onChange={onChange}
       />
-      <div className="lg:col-span-2">{projectList}</div>
-    </div>
+        <div className="lg:col-span-2">{projectList}</div>
+      </div>
+    </>
   );
 }
 

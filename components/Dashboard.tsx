@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type {
+  Client,
   DomainMeta,
   DomainState,
   HabitTracker as HabitTrackerData,
@@ -18,6 +19,7 @@ import { ProjectList } from "./ProjectList";
 import { FinanceLedger } from "./FinanceLedger";
 import { KnowledgeView } from "./KnowledgeView";
 import { HabitTracker } from "./HabitTracker";
+import { CrmView } from "./CrmView";
 import { BusinessBody } from "./SopView";
 
 interface Props {
@@ -83,6 +85,10 @@ export function Dashboard({ domain, state, onChange }: Props) {
 
   function updateHabits(next: HabitTrackerData) {
     onChange((s) => ({ ...s, habits: next }));
+  }
+
+  function updateClients(next: Client[]) {
+    onChange((s) => ({ ...s, clients: next }));
   }
 
   const isFinance = domain.id === "finances";
@@ -207,6 +213,13 @@ export function Dashboard({ domain, state, onChange }: Props) {
           sops={state.sops ?? []}
           accent={domain.accent}
           onChange={updateSops}
+          crm={
+            <CrmView
+              clients={state.clients ?? []}
+              accent={domain.accent}
+              onChange={updateClients}
+            />
+          }
           projectList={
             <ProjectList
               {...projectCommon}

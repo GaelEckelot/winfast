@@ -70,6 +70,7 @@ function normalize(data: AppData): AppData {
       ledger: s.ledger ?? SEED[id].ledger,
       knowledge: s.knowledge ?? SEED[id].knowledge,
       sops: s.sops ?? SEED[id].sops,
+      clients: s.clients ?? SEED[id].clients,
       habits: s.habits ?? SEED[id].habits,
       kpis: s.kpis.map((k) => {
         const withHist =
@@ -331,6 +332,21 @@ export function todayISO(): string {
 
 export function emptyHabitTracker(): import("./types").HabitTracker {
   return { habits: [], log: {} };
+}
+
+export function emptyClient(
+  stage: import("./types").CrmStage = "lead",
+): import("./types").Client {
+  return {
+    id: newId(),
+    company: "",
+    contact: "",
+    stage,
+    value: 0,
+    email: "",
+    nextAction: "",
+    notes: "",
+  };
 }
 
 export function emptyKpi(): Kpi {

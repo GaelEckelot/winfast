@@ -67,6 +67,22 @@ export interface Sop {
   steps: SopStep[];
 }
 
+/** Pipeline stage of a CRM client (Business module). */
+export type CrmStage = "lead" | "contacted" | "proposal" | "won" | "lost";
+
+/** A CRM client / deal (Business module). */
+export interface Client {
+  id: string;
+  company: string;
+  contact: string;
+  stage: CrmStage;
+  /** Deal value in €. */
+  value: number;
+  email: string;
+  nextAction: string;
+  notes: string;
+}
+
 export type ProjectStatus = "active" | "planned" | "paused" | "done";
 
 export interface Task {
@@ -96,6 +112,8 @@ export interface DomainState {
   knowledge?: KnowledgeDomain[];
   /** Business-specific Standard Operating Procedures (only used by the Business module). */
   sops?: Sop[];
+  /** Business-specific CRM clients / deals (only used by the Business module). */
+  clients?: Client[];
   /** Health-specific habit tracker (only used by the Santé module). */
   habits?: HabitTracker;
 }
