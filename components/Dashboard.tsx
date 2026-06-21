@@ -4,18 +4,20 @@ import { useEffect, useRef } from "react";
 import type {
   DomainMeta,
   DomainState,
+  HabitTracker as HabitTrackerData,
   Kpi,
   KnowledgeDomain,
   LedgerColumn,
   Project,
   Sop,
 } from "@/lib/types";
-import { emptyKpi, emptyProject } from "@/lib/store";
+import { emptyHabitTracker, emptyKpi, emptyProject } from "@/lib/store";
 import { Icon } from "./Icon";
 import { KpiCard } from "./KpiCard";
 import { ProjectList } from "./ProjectList";
 import { FinanceLedger } from "./FinanceLedger";
 import { KnowledgeView } from "./KnowledgeView";
+import { HabitTracker } from "./HabitTracker";
 import { BusinessBody } from "./SopView";
 
 interface Props {
@@ -79,7 +81,12 @@ export function Dashboard({ domain, state, onChange }: Props) {
     onChange((s) => ({ ...s, sops: next }));
   }
 
+  function updateHabits(next: HabitTrackerData) {
+    onChange((s) => ({ ...s, habits: next }));
+  }
+
   const isFinance = domain.id === "finances";
+  const isHealth = domain.id === "sante";
   const isKnowledge = domain.id === "knowledge";
   const isVision = domain.id === "vision";
   const isBusiness = domain.id === "business";
@@ -171,6 +178,15 @@ export function Dashboard({ domain, state, onChange }: Props) {
           </div>
         </div>
       </div>
+
+      {/* Santé-specific: habit tracker (checklist + monthly heatmap) above projects */}
+      {isHealth && (
+        <HabitTracker
+          data={state.habits ?? emptyHabitTracker()}
+          accent={domain.accent}
+          onChange={updateHabits}
+        />
+      )}
 
       {/* Module-specific body: Finances → ledger, Knowledge → domains,
           Business → SOP + projects (2 cols), others → projects */}
