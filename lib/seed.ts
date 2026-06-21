@@ -233,6 +233,11 @@ export const SEED: AppData = {
       {
         id: "s1",
         title: "Onboarding nouveau client",
+        body:
+          "Objectif : faire vivre une première expérience irréprochable au client dès la signature.\n\n" +
+          "Délai cible : compte opérationnel sous 48h.\n" +
+          "Responsable : toi (puis délégable).\n\n" +
+          "Notes : adapter le ton à la taille du client. Tout passe par l'espace partagé.",
         steps: [
           { id: "st1", label: "Envoyer l'email de bienvenue + accès", done: true },
           { id: "st2", label: "Appel de cadrage (objectifs, KPIs)", done: true },

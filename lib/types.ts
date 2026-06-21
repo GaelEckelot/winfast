@@ -60,10 +60,12 @@ export interface SopStep {
   done: boolean;
 }
 
-/** A Standard Operating Procedure — an openable, step-by-step procedure page. */
+/** A Standard Operating Procedure — an openable, document-style procedure page. */
 export interface Sop {
   id: string;
   title: string;
+  /** Free-text document body (the procedure written as text). */
+  body?: string;
   steps: SopStep[];
 }
 

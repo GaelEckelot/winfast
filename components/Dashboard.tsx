@@ -19,8 +19,7 @@ import { ProjectList } from "./ProjectList";
 import { FinanceLedger } from "./FinanceLedger";
 import { KnowledgeView } from "./KnowledgeView";
 import { HabitTracker } from "./HabitTracker";
-import { CrmView } from "./CrmView";
-import { BusinessBody } from "./SopView";
+import { BusinessSection, type BusinessView } from "./BusinessSection";
 
 interface Props {
   domain: DomainMeta;
@@ -31,6 +30,8 @@ interface Props {
 export function Dashboard({ domain, state, onChange }: Props) {
   // Id of the KPI being created, so only it opens in edit mode (with a "Validé" button).
   const [newKpiId, setNewKpiId] = useState<string | null>(null);
+  // Business sub-navigation (home menu → CRM / SOP / Actions pages).
+  const [businessView, setBusinessView] = useState<BusinessView>("home");
 
   function moveProject(from: number, to: number) {
     onChange((s) => {
@@ -95,6 +96,8 @@ export function Dashboard({ domain, state, onChange }: Props) {
   const isKnowledge = domain.id === "knowledge";
   const isVision = domain.id === "vision";
   const isBusiness = domain.id === "business";
+  // On a Business sub-page (CRM/SOP/Actions), hide the KPI row to give the page full space.
+  const showKpis = !(isBusiness && businessView !== "home");
   // Live "Tâches" card: kept only for modules that asked for it (Travail, Vision).
   const showTasks = domain.id === "travail" || domain.id === "vision";
   // Fit the KPI grid to the actual number of cards (avoid empty trailing cells).
@@ -161,6 +164,7 @@ export function Dashboard({ domain, state, onChange }: Props) {
           </div>
         </div>
 
+        {showKpis && (
         <div className="min-w-[280px] flex-1">
           <div className="relative flex items-center justify-center">
             <SectionTitle>Indicateurs clés</SectionTitle>
@@ -194,6 +198,7 @@ export function Dashboard({ domain, state, onChange }: Props) {
             ))}
           </div>
         </div>
+        )}
       </div>
 
       {/* Santé-specific: habit tracker (checklist + monthly heatmap) above projects */}
@@ -220,17 +225,15 @@ export function Dashboard({ domain, state, onChange }: Props) {
           onChange={updateKnowledge}
         />
       ) : isBusiness ? (
-        <BusinessBody
+        <BusinessSection
+          view={businessView}
+          setView={setBusinessView}
           sops={state.sops ?? []}
+          onSopsChange={updateSops}
+          clients={state.clients ?? []}
+          onClientsChange={updateClients}
+          projectsCount={state.projects.length}
           accent={domain.accent}
-          onChange={updateSops}
-          crm={
-            <CrmView
-              clients={state.clients ?? []}
-              accent={domain.accent}
-              onChange={updateClients}
-            />
-          }
           projectList={
             <ProjectList
               {...projectCommon}
