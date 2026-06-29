@@ -29,6 +29,36 @@ function resolveApiKey(): string | null {
   return k;
 }
 
+// --- Input bounds (cap the cost of any single request) ---
+const MAX_MESSAGES = 20;
+const MAX_MESSAGE_CHARS = 6000;
+const MAX_CONTEXT_CHARS = 4000;
+const MAX_SNAPSHOT_CHARS = 8000;
+
+// --- Lightweight rate limiting (best-effort, per-instance) ---
+// Durable limiting (e.g. Upstash Redis) is recommended for production, since
+// serverless instances don't share this map. This still throttles bursts.
+const RATE_LIMIT = 20; // requests
+const RATE_WINDOW_MS = 60_000; // per minute
+const hits = new Map<string, number[]>();
+
+function rateLimited(key: string): boolean {
+  const now = Date.now();
+  const recent = (hits.get(key) ?? []).filter((t) => now - t < RATE_WINDOW_MS);
+  recent.push(now);
+  hits.set(key, recent);
+  if (hits.size > 5000) {
+    // Avoid unbounded growth on a long-lived instance.
+    for (const [k, v] of hits) if (v.every((t) => now - t >= RATE_WINDOW_MS)) hits.delete(k);
+  }
+  return recent.length > RATE_LIMIT;
+}
+
+function clientIp(req: Request): string {
+  const xff = req.headers.get("x-forwarded-for");
+  return xff?.split(",")[0]?.trim() || "unknown";
+}
+
 /** Lightweight status check so the client can render the copilot as
  *  "enabled" or "coming soon" without making a failing chat request. */
 export async function GET() {
@@ -38,6 +68,7 @@ export async function GET() {
 export async function POST(req: Request) {
   // Once Supabase is configured, the copilot is reserved to signed-in users
   // (prevents the endpoint from being an open, billable AI proxy).
+  let rateKey = `ip:${clientIp(req)}`;
   if (isSupabaseConfigured()) {
     const supabase = createClient();
     const {
@@ -49,6 +80,14 @@ export async function POST(req: Request) {
         headers: { "content-type": "application/json" },
       });
     }
+    rateKey = `user:${user.id}`;
+  }
+
+  if (rateLimited(rateKey)) {
+    return new Response(
+      JSON.stringify({ error: "Trop de requêtes. Réessaie dans une minute." }),
+      { status: 429, headers: { "content-type": "application/json" } },
+    );
   }
 
   const apiKey = resolveApiKey();
@@ -72,10 +111,17 @@ export async function POST(req: Request) {
     });
   }
 
-  const messages = (body.messages ?? [])
-    .filter((m) => m.content?.trim())
-    .slice(-20)
-    .map((m) => ({ role: m.role, content: m.content }));
+  // Validate & clamp the conversation: only user/assistant turns, bounded size.
+  const messages = (Array.isArray(body.messages) ? body.messages : [])
+    .filter(
+      (m) =>
+        m &&
+        (m.role === "user" || m.role === "assistant") &&
+        typeof m.content === "string" &&
+        m.content.trim(),
+    )
+    .slice(-MAX_MESSAGES)
+    .map((m) => ({ role: m.role, content: m.content.slice(0, MAX_MESSAGE_CHARS) }));
 
   if (messages.length === 0) {
     return new Response(JSON.stringify({ error: "Aucun message." }), {
@@ -84,10 +130,14 @@ export async function POST(req: Request) {
     });
   }
 
+  const context = typeof body.context === "string" ? body.context.slice(0, MAX_CONTEXT_CHARS) : "";
+  const snapshot =
+    typeof body.snapshot === "string" ? body.snapshot.slice(0, MAX_SNAPSHOT_CHARS) : "";
+
   const system = [
     GLOBAL_SYSTEM,
-    body.context ? `\nContexte du module:\n${body.context}` : "",
-    body.snapshot ? `\nÉtat actuel (données live):\n${body.snapshot}` : "",
+    context ? `\nContexte du module:\n${context}` : "",
+    snapshot ? `\nÉtat actuel (données live):\n${snapshot}` : "",
   ].join("\n");
 
   const client = new Anthropic({ apiKey });
@@ -112,9 +162,11 @@ export async function POST(req: Request) {
         await llm.finalMessage();
         controller.close();
       } catch (err) {
-        const msg =
-          err instanceof Error ? err.message : "Erreur inconnue côté IA.";
-        controller.enqueue(encoder.encode(`\n\n⚠️ ${msg}`));
+        // Log details server-side; never leak provider/internal errors to the client.
+        console.error("WinFast — erreur copilote IA:", err);
+        controller.enqueue(
+          encoder.encode("\n\n⚠️ Le copilote est momentanément indisponible. Réessaie plus tard."),
+        );
         controller.close();
       }
     },
