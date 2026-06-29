@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { LedgerColumn, LedgerRole, LedgerRow } from "@/lib/types";
 import { newId } from "@/lib/store";
 
@@ -15,6 +15,13 @@ function parseAmount(raw: string): number | undefined {
   return Number.isNaN(n) ? undefined : n;
 }
 
+/** Toggle `draggable` on the closest ledger row synchronously, so the browser
+ *  sees it before `dragstart` fires (a React state update would be too late). */
+function setRowDraggable(el: HTMLElement, on: boolean) {
+  const row = el.closest<HTMLElement>("[data-ledger-row]");
+  if (row) row.draggable = on;
+}
+
 interface Props {
   columns: LedgerColumn[];
   accent: string;
@@ -27,6 +34,9 @@ export function FinanceLedger({ columns, accent, onChange }: Props) {
   useEffect(() => {
     mounted.current = true;
   }, []);
+
+  // Drag-to-reorder rows within a column (same UX as the home todo).
+  const [drag, setDrag] = useState<{ cid: string; index: number } | null>(null);
 
   const colTotal = (c: LedgerColumn) => c.rows.reduce((a, r) => a + (r.amount ?? 0), 0);
   const totalByRole = (role: LedgerRole) =>
@@ -50,6 +60,14 @@ export function FinanceLedger({ columns, accent, onChange }: Props) {
   }
   function removeRow(cid: string, rid: string) {
     patchColumn(cid, (c) => ({ ...c, rows: c.rows.filter((r) => r.id !== rid) }));
+  }
+  function moveRow(cid: string, from: number, to: number) {
+    patchColumn(cid, (c) => {
+      const rows = [...c.rows];
+      const [item] = rows.splice(from, 1);
+      rows.splice(to, 0, item);
+      return { ...c, rows };
+    });
   }
   function setTitle(cid: string, title: string) {
     patchColumn(cid, (c) => ({ ...c, title }));
@@ -81,11 +99,45 @@ export function FinanceLedger({ columns, accent, onChange }: Props) {
               />
 
               <div className={`flex-1 ${notes ? "space-y-0.5" : "divide-y divide-line/10"}`}>
-                {col.rows.map((r) => (
+                {col.rows.map((r, i) => (
                   <div
                     key={r.id}
-                    className={`group/row flex items-start gap-1.5 ${notes ? "" : "py-1"}`}
+                    data-ledger-row
+                    onDragStart={() => setDrag({ cid: col.id, index: i })}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      if (drag && drag.cid === col.id && drag.index !== i) {
+                        moveRow(col.id, drag.index, i);
+                        setDrag({ cid: col.id, index: i });
+                      }
+                    }}
+                    onDragEnd={(e) => {
+                      e.currentTarget.draggable = false;
+                      setDrag(null);
+                    }}
+                    className={`group/row relative flex items-start gap-1.5 transition-opacity ${
+                      notes ? "" : "py-1"
+                    } ${drag?.cid === col.id && drag.index === i ? "opacity-40" : ""}`}
                   >
+                    {/* drag handle — appears on row hover, sits in the column padding */}
+                    <span
+                      onMouseDown={(e) => setRowDraggable(e.currentTarget, true)}
+                      onMouseUp={(e) => setRowDraggable(e.currentTarget, false)}
+                      onTouchStart={(e) => setRowDraggable(e.currentTarget, true)}
+                      onTouchEnd={(e) => setRowDraggable(e.currentTarget, false)}
+                      title="Glisser pour réordonner"
+                      aria-label="Glisser pour réordonner"
+                      className="absolute -left-2.5 top-1 flex h-4 w-3 cursor-grab items-center justify-center text-muted opacity-0 transition-opacity hover:text-ink group-hover/row:opacity-60 active:cursor-grabbing"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <circle cx="9" cy="6" r="1.5" />
+                        <circle cx="15" cy="6" r="1.5" />
+                        <circle cx="9" cy="12" r="1.5" />
+                        <circle cx="15" cy="12" r="1.5" />
+                        <circle cx="9" cy="18" r="1.5" />
+                        <circle cx="15" cy="18" r="1.5" />
+                      </svg>
+                    </span>
                     {/* Label is an auto-growing textarea so long text wraps and
                         stays fully visible, whatever the column width. */}
                     <AutoTextarea
